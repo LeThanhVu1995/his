@@ -1,0 +1,1 @@
+-- master-data-service 20250914_000002_department_room_bed.sql placeholder

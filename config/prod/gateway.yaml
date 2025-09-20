@@ -1,0 +1,20 @@
+# Gateway Production Configuration
+server:
+  host: "0.0.0.0"
+  port: 8080
+
+redis:
+  url: "redis://redis:6379"
+
+kafka:
+  bootstrap_servers: "kafka:9092"
+
+auth:
+  keycloak:
+    url: "https://keycloak.his.local"
+    realm: "his"
+    client_id: "his-gateway"
+
+telemetry:
+  jaeger_endpoint: "http://jaeger:14268/api/traces"
+  service_name: "gateway"

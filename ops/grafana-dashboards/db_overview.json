@@ -1,0 +1,15 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Database Overview",
+    "tags": ["database", "postgres", "his"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

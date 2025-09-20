@@ -1,0 +1,1 @@
+-- insurance-service 20250914_000001_claims.sql placeholder

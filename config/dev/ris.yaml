@@ -1,0 +1,24 @@
+# RIS-PACS Service Configuration
+server:
+  host: "0.0.0.0"
+  port: 8005
+
+database:
+  url: "postgresql://postgres:postgres@localhost:5432/his_ris"
+  max_connections: 10
+
+redis:
+  url: "redis://localhost:6379"
+
+kafka:
+  bootstrap_servers: "localhost:9092"
+  group_id: "ris-service"
+
+dicom:
+  port: 11112
+  host: "0.0.0.0"
+  ae_title: "HIS-RIS"
+
+telemetry:
+  jaeger_endpoint: "http://localhost:14268/api/traces"
+  service_name: "ris-service"

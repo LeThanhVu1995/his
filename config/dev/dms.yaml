@@ -1,0 +1,26 @@
+# DMS Service Configuration
+server:
+  host: "0.0.0.0"
+  port: 8015
+
+database:
+  url: "postgresql://postgres:postgres@localhost:5432/his_dms"
+  max_connections: 10
+
+redis:
+  url: "redis://localhost:6379"
+
+kafka:
+  bootstrap_servers: "localhost:9092"
+  group_id: "dms-service"
+
+storage:
+  minio:
+    endpoint: "http://localhost:9000"
+    access_key: "minioadmin"
+    secret_key: "minioadmin"
+    bucket: "his-documents"
+
+telemetry:
+  jaeger_endpoint: "http://localhost:14268/api/traces"
+  service_name: "dms-service"

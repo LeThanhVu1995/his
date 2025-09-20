@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iam-service
+  namespace: his
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: iam-service
+  template:
+    metadata:
+      labels:
+        app: iam-service
+    spec:
+      containers:
+      - name: iam-service
+        image: his/iam-service:latest
+        ports:
+        - containerPort: 8001
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: iam-secrets
+              key: database-url
+        - name: REDIS_URL
+          value: "redis://redis:6379"
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka:9092"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iam-service
+  namespace: his
+spec:
+  selector:
+    app: iam-service
+  ports:
+  - port: 8001
+    targetPort: 8001
+  type: ClusterIP

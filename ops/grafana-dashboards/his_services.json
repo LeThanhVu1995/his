@@ -1,0 +1,15 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "HIS Services",
+    "tags": ["his", "services", "microservices"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

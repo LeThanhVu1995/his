@@ -1,0 +1,30 @@
+[package]
+name = "app-kafka"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Kafka utils for HIS (producer/consumer, tracing, metrics)."
+
+[dependencies]
+# Kafka client
+rdkafka = { version = "0.36", features = ["cmake-build", "tokio"] }
+
+# Async
+tokio = { version = "1", features = ["rt", "time", "macros"] }
+tokio-stream = "0.1"
+futures = "0.3"
+
+# Serde
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Telemetry
+tracing = "0.1"
+metrics = "0.23"
+
+# Our crates
+app-config = { path = "../app-config" }
+app-error = { path = "../app-error" }
+
+# Utils
+thiserror = "1.0"

@@ -1,0 +1,48 @@
+[package]
+name = "iam-service"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "HIS IAM Service: users, roles, me, health"
+
+
+[dependencies]
+# Web
+actix-web = "4"
+actix-rt = "2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+
+# DB
+sqlx = { version = "0.7", features = ["runtime-tokio", "tls-rustls", "postgres", "chrono", "uuid", "macros", "json"] }
+
+
+# Utils
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0"
+tracing = "0.1"
+
+
+# Internal crates
+app-error = { path = "../../crates/app-error", features = ["sqlx"] }
+app-telemetry = { path = "../../crates/app-telemetry", features = ["actix"] }
+app-web = { path = "../../crates/app-web" }
+app-auth = { path = "../../crates/app-auth" }
+app-core = { path = "../../crates/app-core", features = ["sqlx"] }
+app-outbox = { path = "../../crates/app-outbox" }
+app-kafka = { path = "../../crates/app-kafka" }
+app-config = { path = "../../crates/app-config" }
+
+
+[dev-dependencies]
+pretty_assertions = "1.4"
+
+# Patterns & URL helpers
+globset = "0.4"
+url = "2"
+
+# OpenAPI
+utoipa = { version = ">=3", features = ["chrono", "uuid", "actix_extras"] }
+utoipa-swagger-ui = { version = ">=4", features = ["actix-web"] }

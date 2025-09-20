@@ -1,0 +1,1 @@
+-- reporting-service 20250914_000001_materialized_views.sql placeholder

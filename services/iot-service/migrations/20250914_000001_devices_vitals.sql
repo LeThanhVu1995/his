@@ -1,0 +1,1 @@
+-- iot-service 20250914_000001_devices_vitals.sql placeholder

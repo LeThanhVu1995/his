@@ -1,0 +1,36 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/app-config",
+  "crates/app-error",
+  "crates/app-telemetry",
+  "crates/app-web",
+  "crates/app-auth",
+  "crates/app-kafka",
+  "crates/app-outbox",
+  "crates/app-core",
+  "crates/app-macros",
+  "services/gateway",
+  "services/iam-service",
+  "services/master-data-service",
+  "services/patient-service",
+  "services/scheduling-service",
+  "services/emr-service",
+  "services/lis-service",
+  "services/ris-pacs-service",
+  "services/pharmacy-service",
+  "services/inventory-service",
+  "services/billing-service",
+  "services/insurance-service",
+  "services/or-cssd-service",
+  "services/blood-bank-service",
+  "services/notify-service",
+  "services/workflow-service",
+  "services/reporting-service",
+  "services/iot-service",
+  "services/dms-service",
+  "services/search-service",
+  "services/audit-service"
+]
+[workspace.package]
+edition = "2021"

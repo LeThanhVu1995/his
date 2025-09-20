@@ -1,0 +1,1 @@
+-- scheduling-service 20250914_000001_resources.sql placeholder

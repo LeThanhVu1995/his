@@ -1,0 +1,1 @@
+-- workflow-service 20250914_000005_outbox.sql placeholder

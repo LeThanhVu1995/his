@@ -1,0 +1,9 @@
+{
+  "db": "PostgreSQL",
+  "query_hash": "placeholder",
+  "query": "placeholder",
+  "describe": {
+    "nullable": [],
+    "columns": []
+  }
+}

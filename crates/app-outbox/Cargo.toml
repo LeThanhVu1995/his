@@ -1,0 +1,29 @@
+[package]
+name = "app-outbox"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Transactional Outbox store + Kafka dispatcher for HIS."
+
+[dependencies]
+# DB
+sqlx = { version = "0.7", features = ["runtime-tokio", "tls-rustls", "macros", "postgres", "uuid", "chrono", "json"] }
+
+# Serde
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Time & ids
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Telemetry
+tracing = "0.1"
+metrics = "0.23"
+
+# Our crates
+app-error = { path = "../app-error", features = ["sqlx"] }
+app-kafka  = { path = "../app-kafka" }
+
+# Utils
+thiserror = "1.0"

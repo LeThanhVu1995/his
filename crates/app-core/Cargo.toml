@@ -1,0 +1,23 @@
+[package]
+name = "app-core"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Core utilities for HIS services: pagination, time helpers, sqlx result extensions."
+
+[features]
+default = []
+# Bật các tiện ích liên quan SQLx; cũng kéo theo mapping lỗi của app-error.
+sqlx = ["dep:sqlx", "app-error/sqlx", "dep:app-error"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+
+# Chỉ cần khi bật feature `sqlx`
+sqlx = { version = "0.7", optional = true, default-features = false, features = ["runtime-tokio", "postgres", "chrono", "uuid"] }
+app-error = { path = "../app-error", optional = true }
+
+[dev-dependencies]
+pretty_assertions = "1.4"

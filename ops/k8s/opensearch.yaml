@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensearch
+  namespace: his
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch
+  template:
+    metadata:
+      labels:
+        app: opensearch
+    spec:
+      containers:
+      - name: opensearch
+        image: opensearchproject/opensearch:latest
+        ports:
+        - containerPort: 9200
+        - containerPort: 9600
+        env:
+        - name: cluster.name
+          value: "his-cluster"
+        - name: node.name
+          value: "opensearch-node1"
+        - name: discovery.type
+          value: "single-node"
+        - name: bootstrap.memory_lock
+          value: "true"
+        - name: "OPENSEARCH_JAVA_OPTS"
+          value: "-Xms512m -Xmx512m"
+        volumeMounts:
+        - name: opensearch-storage
+          mountPath: /usr/share/opensearch/data
+      volumes:
+      - name: opensearch-storage
+        persistentVolumeClaim:
+          claimName: opensearch-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch
+  namespace: his
+spec:
+  selector:
+    app: opensearch
+  ports:
+  - port: 9200
+    targetPort: 9200
+  - port: 9600
+    targetPort: 9600
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opensearch-pvc
+  namespace: his
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

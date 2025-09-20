@@ -1,0 +1,23 @@
+# LIS Service Configuration
+server:
+  host: "0.0.0.0"
+  port: 8004
+
+database:
+  url: "postgresql://postgres:postgres@localhost:5432/his_lis"
+  max_connections: 10
+
+redis:
+  url: "redis://localhost:6379"
+
+kafka:
+  bootstrap_servers: "localhost:9092"
+  group_id: "lis-service"
+
+hl7:
+  port: 2575
+  host: "0.0.0.0"
+
+telemetry:
+  jaeger_endpoint: "http://localhost:14268/api/traces"
+  service_name: "lis-service"

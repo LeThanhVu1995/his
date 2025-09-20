@@ -1,0 +1,1 @@
+-- search-service 20250914_000001_index_registry.sql placeholder

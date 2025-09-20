@@ -1,0 +1,1 @@
+-- master-data-service 20250914_000001_com_code.sql placeholder

@@ -1,0 +1,1 @@
+-- scheduling-service 20250914_000002_appointments.sql placeholder

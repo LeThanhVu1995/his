@@ -1,0 +1,1 @@
+-- inventory-service 20250914_000001_items.sql placeholder
