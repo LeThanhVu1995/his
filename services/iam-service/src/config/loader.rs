@@ -14,14 +14,14 @@ pub fn load_from_env() -> ServiceConfig {
     let telemetry = app_config::TelemetryConfig {
         otlp_endpoint: env::var("OTLP_ENDPOINT").unwrap_or_else(|_| "http://localhost:4317".into()),
         log_level:     env::var("RUST_LOG").unwrap_or_else(|_| "info".into()),
-        service_name,
+        service_name: service_name.clone(),
         enabled: true,
     };
 
     let security = app_config::SecurityConfig {
         issuer: env::var("KC_ISSUER").unwrap_or_else(|_| "http://localhost:8080/realms/his".into()),
         audience: env::var("KC_AUDIENCE").unwrap_or_default(),
-        jwks_ttl: env::var("KC_JWKS_TTL").unwrap_or_else(|_| "10m".into()),
+        jwks_ttl: Some(env::var("KC_JWKS_TTL").unwrap_or_else(|_| "10m".into())),
         realm: env::var("KC_REALM").unwrap_or_else(|_| "his".into()),
     };
 
@@ -40,5 +40,5 @@ pub fn load_from_env() -> ServiceConfig {
         .filter(|s| !s.is_empty())
         .collect();
 
-    ServiceConfig { service_name, service_version, http_host, http_port, dev_mode, database_url, telemetry, security, kafka, oidc_login_client_id, idp_providers }
+    ServiceConfig { service_name: service_name.clone(), service_version, http_host, http_port, dev_mode, database_url, telemetry, security, kafka, oidc_login_client_id, idp_providers }
 }

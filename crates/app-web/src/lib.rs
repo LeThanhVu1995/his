@@ -2,6 +2,9 @@
 pub mod extractors;
 pub mod middleware;
 pub mod responders;
+pub mod infrastructure;
+pub mod security;
+pub mod service_helpers;
 
 pub mod prelude {
     pub use crate::extractors::auth_user::{AuthUser, MaybeAuthUser};
@@ -14,4 +17,6 @@ pub mod prelude {
     pub use crate::middleware::request_id::{RequestId, RequestIdMiddleware};
     pub use crate::middleware::timeout::TimeoutMiddleware;
     pub use crate::responders::json_problem::JsonProblem;
+    pub use crate::security::{PermissionDef, PermissionCatalog};
+    pub use crate::service_helpers;
 }

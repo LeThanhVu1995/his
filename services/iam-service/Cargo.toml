@@ -23,7 +23,14 @@ uuid = { version = "1", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 thiserror = "1.0"
 tracing = "0.1"
+anyhow = "1.0"
 
+# OpenAPI
+utoipa = { version = "4", features = ["chrono", "uuid", "actix_extras"] }
+utoipa-swagger-ui = { version = "7", features = ["actix-web"] }
+
+# URL parsing
+url = "2"
 
 # Internal crates
 app-error = { path = "../../crates/app-error", features = ["sqlx"] }
@@ -31,8 +38,8 @@ app-telemetry = { path = "../../crates/app-telemetry", features = ["actix"] }
 app-web = { path = "../../crates/app-web" }
 app-auth = { path = "../../crates/app-auth" }
 app-core = { path = "../../crates/app-core", features = ["sqlx"] }
-app-outbox = { path = "../../crates/app-outbox" }
-app-kafka = { path = "../../crates/app-kafka" }
+# app-outbox = { path = "../../crates/app-outbox" }  # Disabled due to CMake requirement
+# app-kafka = { path = "../../crates/app-kafka" }  # Disabled due to CMake requirement
 app-config = { path = "../../crates/app-config" }
 
 
@@ -44,5 +51,5 @@ globset = "0.4"
 url = "2"
 
 # OpenAPI
-utoipa = { version = ">=3", features = ["chrono", "uuid", "actix_extras"] }
-utoipa-swagger-ui = { version = ">=4", features = ["actix-web"] }
+utoipa = { version = "4", features = ["chrono", "uuid", "actix_extras"] }
+utoipa-swagger-ui = { version = "7", features = ["actix-web"] }

@@ -4,9 +4,10 @@ use std::time::Duration;
 use app_telemetry::{init_with, TelemetryGuard};
 use app_web::prelude::*;
 use app_auth::KeycloakValidator;
-use app_kafka::KafkaProducer;
-use app_outbox::OutboxDispatcher;
+// use app_kafka::KafkaProducer;  // Disabled due to CMake requirement
+// use app_outbox::OutboxDispatcher;  // Disabled due to CMake requirement
 use utoipa_swagger_ui::SwaggerUi;
+use utoipa::OpenApi;
 
 mod error;
 mod config;
@@ -34,15 +35,15 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect("pg pool");
 
-    // Kafka producer + Outbox dispatcher
-    let producer = KafkaProducer::from_config(&cfg.kafka, &cfg.service_name)
-        .expect("kafka producer");
-    let dispatcher = OutboxDispatcher::new(pool.clone(), producer.clone(), format!("{}-outbox", cfg.service_name));
-    actix_rt::spawn(async move {
-        if let Err(e) = dispatcher.run_forever().await {
-            tracing::error!(error=%e, "outbox dispatcher stopped");
-        }
-    });
+    // Kafka producer + Outbox dispatcher (disabled due to CMake requirement)
+    // let producer = KafkaProducer::from_config(&cfg.kafka, &cfg.service_name)
+    //     .expect("kafka producer");
+    // let dispatcher = OutboxDispatcher::new(pool.clone(), producer.clone(), format!("{}-outbox", cfg.service_name));
+    // actix_rt::spawn(async move {
+    //     if let Err(e) = dispatcher.run_forever().await {
+    //         tracing::error!(error=%e, "outbox dispatcher stopped");
+    //     }
+    // });
 
     // Auth validator (Keycloak)
     let validator = KeycloakValidator::from_security_config(&cfg.security);
@@ -69,7 +70,7 @@ async fn main() -> std::io::Result<()> {
             )
             // Public endpoints
             .service(SwaggerUi::new("/docs/{_:.*}").url("/openapi.json", crate::api_doc::ApiDoc::openapi()))
-            .route("/metrics", web::get().to(app_telemetry::prometheus_handler))
+            .route("/metrics", web::get().to(app_telemetry::metrics::prometheus_handler))
             .configure(http::routes::public_routes)
     })
     .bind((host.as_str(), port))?

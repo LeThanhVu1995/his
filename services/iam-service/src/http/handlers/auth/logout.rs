@@ -10,7 +10,7 @@ pub struct LogoutQuery {
 }
 
 #[utoipa::path(get, path = "/api/iam/auth/logout", tag = "iam",
-    params(("redirect_uri"=String, Query),("id_token_hint"=Option<String>, Query)),
+    params(("redirect_uri"=String, Query,), ("id_token_hint"=Option<String>, Query,)),
     responses((status=302))
 )]
 pub async fn logout(cfg: web::Data<ServiceConfig>, q: web::Query<LogoutQuery>) -> HttpResponse {

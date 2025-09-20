@@ -16,13 +16,13 @@ pub struct AuthzQuery {
 
 #[utoipa::path(get, path = "/api/iam/auth/authorize", tag = "iam",
     params(
-        ("provider" = String, Query),
-        ("redirect_uri" = String, Query),
-        ("state" = Option<String>, Query),
-        ("scope" = Option<String>, Query),
-        ("code_challenge" = Option<String>, Query),
-        ("code_challenge_method" = Option<String>, Query),
-        ("prompt" = Option<String>, Query)
+        ("provider" = String, Query,),
+        ("redirect_uri" = String, Query,),
+        ("state" = Option<String>, Query,),
+        ("scope" = Option<String>, Query,),
+        ("code_challenge" = Option<String>, Query,),
+        ("code_challenge_method" = Option<String>, Query,),
+        ("prompt" = Option<String>, Query,)
     ),
     responses((status=302))
 )]
@@ -51,5 +51,6 @@ pub async fn authorize(cfg: web::Data<ServiceConfig>, q: web::Query<AuthzQuery>)
 
     HttpResponse::Found().append_header((LOCATION, url.as_str())).finish()
 }
+
 
 

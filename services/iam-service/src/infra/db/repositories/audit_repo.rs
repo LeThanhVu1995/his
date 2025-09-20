@@ -8,15 +8,15 @@ pub async fn insert_login(
     user_agent: Option<&str>,
     success: bool,
 ) -> Result<(), app_error::AppError> {
-    sqlx::query!(
+    sqlx::query(
         r#"INSERT INTO audit_user_login (user_id, username, ip_addr, user_agent, success)
-           VALUES ($1,$2,$3,$4,$5)"#,
-        user_id,
-        username,
-        ip_addr,
-        user_agent,
-        success
+           VALUES ($1,$2,$3,$4,$5)"#
     )
+    .bind(user_id)
+    .bind(username)
+    .bind(ip_addr)
+    .bind(user_agent)
+    .bind(success)
     .execute(db)
     .await?;
     Ok(())

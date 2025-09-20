@@ -21,6 +21,7 @@ actix-web-validator = "4"
 # Database
 sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+actix-rt = "2"
 # Kafka (optional) - disabled for now due to CMake requirement
 # rdkafka = { version = "0.36", features = ["cmake-build"], optional = true }
 # HTTP client

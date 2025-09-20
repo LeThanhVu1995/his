@@ -25,7 +25,7 @@ pub async fn me(req: HttpRequest, db: web::Data<PgPool>, user: AuthUser) -> impl
 
     let db2 = db.clone();
     let uid = user.user_id.clone();
-    let uname = user.preferred_username.clone().flatten();
+    let uname = user.preferred_username.clone();
     actix_rt::spawn(async move {
         let _ = audit_repo::insert_login(db2.get_ref(), &uid, uname.as_deref(), ip.as_deref(), ua.as_deref(), true).await;
     });

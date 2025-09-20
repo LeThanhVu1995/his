@@ -19,7 +19,7 @@ use crate::rbac;
 pub async fn create(db: web::Data<PgPool>, payload: web::Json<UserCreateReq>, user: AuthUser) -> Result<HttpResponse, app_error::AppError> {
     rbac::require(&user, &[rbac::ADMIN], &[rbac::IAM_USER_CREATE])?;
 
-    let u = user_svc::create_user_with_event(db.get_ref(), &payload.username, payload.full_name.as_deref(), payload.email.as_deref()).await?;
+    let u = user_svc::create_user(db.get_ref(), &payload.username, payload.full_name.as_deref(), payload.email.as_deref()).await?;
     let dto = UserDto { id: u.id, username: u.username, full_name: u.full_name, email: u.email, locked: u.locked };
     Ok(HttpResponse::Created().json(dto))
 }

@@ -2,7 +2,7 @@ use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::openapi::ComponentsBuilder;
 use utoipa::{Modify, OpenApi};
 
-use crate::http::dto::{role_dto::*, user_dto::*};
+use crate::http::dto::{role_dto::*, user_dto::*, policy_dto::*};
 use crate::http::handlers;
 
 #[derive(OpenApi)]
@@ -10,13 +10,13 @@ use crate::http::handlers;
     paths(
         handlers::health::health,
         handlers::me::me,
-        handlers::users::list,
-        handlers::users::create,
-        handlers::users::get,
-        handlers::users::update,
-        handlers::users::lock,
-        handlers::roles::list,
-        handlers::roles::assign,
+        handlers::users::list::list,
+        handlers::users::create::create,
+        handlers::users::get::get,
+        handlers::users::update::update,
+        handlers::users::lock::lock,
+        handlers::roles::list::list,
+        handlers::roles::assign::assign,
         handlers::policies::list::list,
         handlers::policies::create::create,
         handlers::policies::assign_role::assign_role,

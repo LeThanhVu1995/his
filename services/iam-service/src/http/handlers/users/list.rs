@@ -4,6 +4,7 @@ use crate::infra::db::pool::PgPool;
 use crate::domain::services::user_svc;
 use crate::http::dto::user_dto::UserDto;
 use app_core::prelude::*;
+use app_core::pagination::to_paged;
 use serde::Deserialize;
 use app_web::prelude::AuthUser;
 use crate::rbac;

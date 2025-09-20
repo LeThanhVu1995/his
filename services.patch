@@ -1,0 +1,2050 @@
+From 569fccbeae43c7007eb2f59331820d50ec7ddffe Mon Sep 17 00:00:00 2001
+From: Thanh Vu <mailto:vu.le@cyberlogitec.com>
+Date: Sat, 20 Sep 2025 12:27:53 +0700
+Subject: [PATCH] patient service
+
+---
+ services/master-data-service/Cargo.toml       |  15 +-
+ services/master-data-service/src/config.rs    |   8 +-
+ .../src/http/handlers/codes.rs                |   4 +-
+ .../src/http/middleware.rs                    | 130 ---------
+ services/master-data-service/src/http/mod.rs  |   1 -
+ .../master-data-service/src/http/routes.rs    |  10 +-
+ services/master-data-service/src/main.rs      |  22 +-
+ services/patient-service/Cargo.toml           |  57 +++-
+ services/patient-service/Makefile             |  12 +-
+ services/patient-service/README.md            |  27 +-
+ .../migrations/0001_patient.sql               |  22 ++
+ .../migrations/0002_encounter.sql             |  16 ++
+ services/patient-service/src/config.rs        |  27 ++
+ services/patient-service/src/config/loader.rs |   1 -
+ services/patient-service/src/config/mod.rs    |   1 -
+ services/patient-service/src/config/types.rs  |   1 -
+ services/patient-service/src/domain/mod.rs    |   4 +-
+ services/patient-service/src/domain/models.rs |  39 +++
+ services/patient-service/src/domain/repo.rs   | 269 ++++++++++++++++++
+ .../patient-service/src/domain/service.rs     |  82 ++++++
+ .../patient-service/src/dto/encounter_dto.rs  |  39 +++
+ services/patient-service/src/dto/mod.rs       |   2 +
+ .../patient-service/src/dto/patient_dto.rs    |  57 ++++
+ services/patient-service/src/error.rs         |  55 +++-
+ .../src/http/handlers/encounters.rs           | 119 ++++++++
+ .../src/http/handlers/encounters/admit.rs     |   1 -
+ .../src/http/handlers/encounters/discharge.rs |   1 -
+ .../src/http/handlers/encounters/transfer.rs  |   1 -
+ .../src/http/handlers/health.rs               |  28 +-
+ .../patient-service/src/http/handlers/mod.rs  |   4 +-
+ .../src/http/handlers/patients.rs             | 143 ++++++++++
+ .../src/http/handlers/patients/create.rs      |   1 -
+ .../src/http/handlers/patients/get.rs         |   1 -
+ .../src/http/handlers/patients/list.rs        |   1 -
+ .../src/http/handlers/patients/merge.rs       |   1 -
+ .../src/http/handlers/patients/mod.rs         |   1 -
+ .../src/http/handlers/patients/update.rs      |   1 -
+ .../src/http/middleware/auth.rs               |   1 -
+ .../src/http/middleware/cache.rs              |   1 -
+ .../src/http/middleware/mod.rs                |   1 -
+ .../src/http/middleware/rate_limit.rs         |   1 -
+ .../src/http/middleware/request_id.rs         |   1 -
+ services/patient-service/src/http/mod.rs      |  42 ++-
+ services/patient-service/src/http/routes.rs   |  39 ++-
+ .../patient-service/src/infrastructure/db.rs  |  11 +
+ .../src/infrastructure/iam_client.rs          |  27 ++
+ .../src/infrastructure/kafka.rs               |  44 +++
+ .../patient-service/src/infrastructure/mod.rs |   3 +
+ services/patient-service/src/main.rs          |  63 +++-
+ services/patient-service/src/security/mod.rs  |   2 +
+ .../src/security/permission.rs                |  72 +++++
+ .../patient-service/src/security/policy.rs    |  39 +++
+ services/patient-service/src/telemetry.rs     |  11 +-
+ 53 files changed, 1365 insertions(+), 197 deletions(-)
+ delete mode 100644 services/master-data-service/src/http/middleware.rs
+ create mode 100644 services/patient-service/migrations/0001_patient.sql
+ create mode 100644 services/patient-service/migrations/0002_encounter.sql
+ create mode 100644 services/patient-service/src/config.rs
+ delete mode 100644 services/patient-service/src/config/loader.rs
+ delete mode 100644 services/patient-service/src/config/mod.rs
+ delete mode 100644 services/patient-service/src/config/types.rs
+ create mode 100644 services/patient-service/src/domain/models.rs
+ create mode 100644 services/patient-service/src/domain/repo.rs
+ create mode 100644 services/patient-service/src/domain/service.rs
+ create mode 100644 services/patient-service/src/dto/encounter_dto.rs
+ create mode 100644 services/patient-service/src/dto/mod.rs
+ create mode 100644 services/patient-service/src/dto/patient_dto.rs
+ create mode 100644 services/patient-service/src/http/handlers/encounters.rs
+ delete mode 100644 services/patient-service/src/http/handlers/encounters/admit.rs
+ delete mode 100644 services/patient-service/src/http/handlers/encounters/discharge.rs
+ delete mode 100644 services/patient-service/src/http/handlers/encounters/transfer.rs
+ create mode 100644 services/patient-service/src/http/handlers/patients.rs
+ delete mode 100644 services/patient-service/src/http/handlers/patients/create.rs
+ delete mode 100644 services/patient-service/src/http/handlers/patients/get.rs
+ delete mode 100644 services/patient-service/src/http/handlers/patients/list.rs
+ delete mode 100644 services/patient-service/src/http/handlers/patients/merge.rs
+ delete mode 100644 services/patient-service/src/http/handlers/patients/mod.rs
+ delete mode 100644 services/patient-service/src/http/handlers/patients/update.rs
+ delete mode 100644 services/patient-service/src/http/middleware/auth.rs
+ delete mode 100644 services/patient-service/src/http/middleware/cache.rs
+ delete mode 100644 services/patient-service/src/http/middleware/mod.rs
+ delete mode 100644 services/patient-service/src/http/middleware/rate_limit.rs
+ delete mode 100644 services/patient-service/src/http/middleware/request_id.rs
+ create mode 100644 services/patient-service/src/infrastructure/db.rs
+ create mode 100644 services/patient-service/src/infrastructure/iam_client.rs
+ create mode 100644 services/patient-service/src/infrastructure/kafka.rs
+ create mode 100644 services/patient-service/src/infrastructure/mod.rs
+ create mode 100644 services/patient-service/src/security/mod.rs
+ create mode 100644 services/patient-service/src/security/permission.rs
+ create mode 100644 services/patient-service/src/security/policy.rs
+
+diff --git a/services/master-data-service/Cargo.toml b/services/master-data-service/Cargo.toml
+index cc8f0aa..12bd893 100644
+--- a/services/master-data-service/Cargo.toml
++++ b/services/master-data-service/Cargo.toml
+@@ -39,17 +39,16 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+ sha2 = "0.10"
+ # Futures support
+ futures-util = "0.3"
+-# Local workspace crates (nếu có)
+-app-auth = { path = "../../crates/app-auth", optional = true }
+-app-error = { path = "../../crates/app-error", optional = true }
+-app-telemetry = { path = "../../crates/app-telemetry", optional = true }
+-app-web = { path = "../../crates/app-web", optional = true }
+-app-kafka = { path = "../../crates/app-kafka", optional = true }
+-app-config = { path = "../../crates/app-config", optional = true }
++# Local workspace crates
++app-auth = { path = "../../crates/app-auth" }
++app-error = { path = "../../crates/app-error" }
++app-telemetry = { path = "../../crates/app-telemetry" }
++app-web = { path = "../../crates/app-web" }
++# app-kafka = { path = "../../crates/app-kafka" }  # Disabled due to CMake requirement
++app-config = { path = "../../crates/app-config" }
+ 
+ [features]
+ default = []
+-use-workspace-crates = ["app-auth", "app-error", "app-telemetry", "app-web", "app-kafka", "app-config"]
+ kafka = ["rdkafka"]
+ 
+ [profile.release]
+diff --git a/services/master-data-service/src/config.rs b/services/master-data-service/src/config.rs
+index fcb517c..fe4907a 100644
+--- a/services/master-data-service/src/config.rs
++++ b/services/master-data-service/src/config.rs
+@@ -6,15 +6,13 @@ pub struct Settings {
+     pub service_port: u16,
+     pub database_url: String,
+ 
++    // Security
++    pub security: app_config::SecurityConfig,
++
+     // IAM
+     pub iam_service_base_url: Option<String>,
+     pub iam_service_token: Option<String>,
+ 
+-    // Auth
+-    pub auth_audience: Option<String>,
+-    pub keycloak_issuer: Option<String>,
+-    pub keycloak_jwks: Option<String>,
+-
+     // Kafka
+     pub kafka_brokers: Option<String>,
+     pub kafka_client_id: Option<String>,
+diff --git a/services/master-data-service/src/http/handlers/codes.rs b/services/master-data-service/src/http/handlers/codes.rs
+index 78cffdb..a59b1ce 100644
+--- a/services/master-data-service/src/http/handlers/codes.rs
++++ b/services/master-data-service/src/http/handlers/codes.rs
+@@ -2,6 +2,7 @@ use actix_web::{web, HttpResponse};
+ use uuid::Uuid;
+ use actix_web_validator::{Query, Json};
+ use actix_web::web::Path;
++use app_web::extractors::auth_user::AuthUser;
+ 
+ use crate::{domain::{repo::MasterRepo, service::MasterService}, dto::{code_dto::{CreateCodeReq, UpdateCodeReq, CodeRes, ListCodesQuery, calc_etag, BulkCreateCodeReq, BulkUpdateCodeReq, BulkCreateCodeRes, BulkError}}, infrastructure::kafka::Kafka};
+ 
+@@ -18,7 +19,8 @@ use crate::{domain::{repo::MasterRepo, service::MasterService}, dto::{code_dto::
+ pub async fn list_codes(
+     req: actix_web::HttpRequest,
+     db: web::Data<sqlx::Pool<sqlx::Postgres>>,
+-    q: Query<ListCodesQuery>
++    q: Query<ListCodesQuery>,
++    _user: AuthUser
+ ) -> actix_web::Result<HttpResponse> {
+     let page = q.page.unwrap_or(1);
+     let size = q.page_size.unwrap_or(50);
+diff --git a/services/master-data-service/src/http/middleware.rs b/services/master-data-service/src/http/middleware.rs
+deleted file mode 100644
+index 3da8d23..0000000
+--- a/services/master-data-service/src/http/middleware.rs
++++ /dev/null
+@@ -1,130 +0,0 @@
+-use actix_web::{dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform}, Error as ActixError, HttpMessage};
+-use futures_util::future::LocalBoxFuture;
+-
+-use crate::{config::Settings, security::UserClaims, error::AppError};
+-
+-/// Middleware gọi iam-service để introspect token và gắn UserClaims vào Extensions.
+-pub struct IamAuth { pub cfg: Settings }
+-
+-impl<S, B> Transform<S, ServiceRequest> for IamAuth
+-where
+-    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = ActixError> + 'static,
+-    S::Future: 'static,
+-{
+-    type Response = ServiceResponse<B>;
+-    type Error = ActixError;
+-    type Transform = IamAuthMw<S>;
+-    type InitError = ();
+-    type Future = std::future::Ready<Result<Self::Transform, Self::InitError>>;
+-
+-    fn new_transform(&self, service: S) -> Self::Future {
+-        std::future::ready(Ok(IamAuthMw { service: std::rc::Rc::new(service), cfg: self.cfg.clone() }))
+-    }
+-}
+-
+-pub struct IamAuthMw<S> { service: std::rc::Rc<S>, cfg: Settings }
+-
+-#[derive(serde::Deserialize)]
+-struct IntrospectRes {
+-    active: bool,
+-    roles: Option<Vec<String>>,      // tuỳ contract iam-service
+-    permissions: Option<Vec<String>> // tuỳ contract iam-service
+-}
+-
+-impl<S, B> Service<ServiceRequest> for IamAuthMw<S>
+-where
+-    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = ActixError> + 'static,
+-    S::Future: 'static,
+-{
+-    type Response = ServiceResponse<B>;
+-    type Error = ActixError;
+-    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+-
+-    forward_ready!(service);
+-
+-    fn call(&self, req: ServiceRequest) -> Self::Future {
+-        let cfg = self.cfg.clone();
+-        let service = self.service.clone();
+-
+-        Box::pin(async move {
+-            let auth = req.headers().get("authorization").and_then(|h| h.to_str().ok()).unwrap_or("");
+-            let token = auth.strip_prefix("Bearer ").ok_or_else(|| AppError::Unauthorized)?;
+-
+-            let base = cfg.iam_service_base_url.as_deref().ok_or_else(|| AppError::Unauthorized)?;
+-            let url = format!("{}/tokens/introspect", base); // đổi nếu contract khác
+-
+-            let res = reqwest::Client::new()
+-                .post(url)
+-                .bearer_auth(token)
+-                .send()
+-                .await
+-                .map_err(|_| AppError::Unauthorized)?;
+-
+-            if !res.status().is_success() {
+-                return Err(AppError::Unauthorized.into());
+-            }
+-            let info: IntrospectRes = res.json().await.map_err(|_| AppError::Unauthorized)?;
+-            if !info.active { return Err(AppError::Unauthorized.into()); }
+-
+-            let claims = UserClaims {
+-                roles: info.roles.unwrap_or_default(),
+-                permissions: info.permissions.unwrap_or_default(),
+-            };
+-            req.extensions_mut().insert(claims);
+-
+-            service.call(req).await
+-        })
+-    }
+-}
+-
+-/// Demo Auth middleware: dùng khi chưa có iam-service (dev local)
+-pub struct DemoAuth;
+-
+-impl<S, B> Transform<S, ServiceRequest> for DemoAuth
+-where
+-    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = ActixError> + 'static,
+-    S::Future: 'static,
+-{
+-    type Response = ServiceResponse<B>;
+-    type Error = ActixError;
+-    type Transform = DemoAuthMw<S>;
+-    type InitError = ();
+-    type Future = std::future::Ready<Result<Self::Transform, Self::InitError>>;
+-
+-    fn new_transform(&self, service: S) -> Self::Future {
+-        std::future::ready(Ok(DemoAuthMw { service: std::rc::Rc::new(service) }))
+-    }
+-}
+-
+-pub struct DemoAuthMw<S> { service: std::rc::Rc<S> }
+-
+-impl<S, B> Service<ServiceRequest> for DemoAuthMw<S>
+-where
+-    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = ActixError> + 'static,
+-    S::Future: 'static,
+-{
+-    type Response = ServiceResponse<B>;
+-    type Error = ActixError;
+-    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+-
+-    forward_ready!(service);
+-
+-    fn call(&self, req: ServiceRequest) -> Self::Future {
+-        let service = self.service.clone();
+-        Box::pin(async move {
+-            let claims = UserClaims {
+-                roles: vec!["ROLE_MASTER_ADMIN".into()],
+-                permissions: vec![
+-                    "his.master.code.list".into(),
+-                    "his.master.code.read".into(),
+-                    "his.master.code.create".into(),
+-                    "his.master.code.update".into(),
+-                    "his.master.code.delete".into(),
+-                ],
+-            };
+-            req.extensions_mut().insert(claims);
+-            let res = service.call(req).await?;
+-            Ok(res)
+-        })
+-    }
+-}
+diff --git a/services/master-data-service/src/http/mod.rs b/services/master-data-service/src/http/mod.rs
+index fc666ba..ff86d39 100644
+--- a/services/master-data-service/src/http/mod.rs
++++ b/services/master-data-service/src/http/mod.rs
+@@ -46,5 +46,4 @@ pub fn mount(cfg: &mut web::ServiceConfig) {
+ 
+ pub mod handlers;
+ pub mod routes;
+-pub mod middleware;
+ 
+diff --git a/services/master-data-service/src/http/routes.rs b/services/master-data-service/src/http/routes.rs
+index c3e8810..1b2dd53 100644
+--- a/services/master-data-service/src/http/routes.rs
++++ b/services/master-data-service/src/http/routes.rs
+@@ -1,34 +1,28 @@
+ use actix_web::{web, Scope};
+ use crate::http::handlers;
+-use crate::security::permission::RequirePermission;
+-use crate::security::policy::perm;
+ 
+ pub fn api_scope() -> Scope {
+     web::scope("")
+         .route("/healthz", web::get().to(handlers::health::healthz))
+-        // List: cần his.master.code.list
++        // List
+         .service(
+             web::resource("/api/v1/master/codes")
+-                .wrap(RequirePermission::new(perm::MASTER_CODE_LIST))
+                 .route(web::get().to(handlers::codes::list_codes))
+         )
+-        // Create: cần his.master.code.create
++        // Create
+         .service(
+             web::resource("/api/v1/master/codes")
+-                .wrap(RequirePermission::new(perm::MASTER_CODE_CREATE))
+                 .route(web::post().to(handlers::codes::create_code))
+         )
+         // Bulk operations
+         .service(
+             web::resource("/api/v1/master/codes/bulk")
+-                .wrap(RequirePermission::new(perm::MASTER_CODE_CREATE))
+                 .route(web::post().to(handlers::codes::bulk_create_codes))
+                 .route(web::put().to(handlers::codes::bulk_update_codes))
+         )
+         // Detail/Update/Delete
+         .service(
+             web::resource("/api/v1/master/codes/{id}")
+-                .wrap(RequirePermission::new(perm::MASTER_CODE_READ))
+                 .route(web::put().to(handlers::codes::update_code))
+                 .route(web::delete().to(handlers::codes::delete_code))
+         )
+diff --git a/services/master-data-service/src/main.rs b/services/master-data-service/src/main.rs
+index 0dcf7d8..b18f6fc 100644
+--- a/services/master-data-service/src/main.rs
++++ b/services/master-data-service/src/main.rs
+@@ -11,9 +11,8 @@ use actix_cors::Cors;
+ use actix_governor::{Governor, GovernorConfigBuilder};
+ use actix_web::{App, HttpServer, middleware::Logger, web};
+ use infrastructure::{db, kafka::Kafka, iam_client};
+-// Temporarily disable real auth until dependencies are available
+-// use app_auth::KeycloakValidator;
+-// use app_web::prelude::{AuthMiddleware, AuthConfig};
++use app_web::prelude::{AuthMiddleware, AuthConfig};
++use app_auth::keycloak::KeycloakValidator;
+ 
+ #[actix_web::main]
+ async fn main() -> std::io::Result<()> {
+@@ -43,28 +42,23 @@ async fn main() -> std::io::Result<()> {
+         }
+     } else { None };
+ 
+-    // Auth validator - temporarily disabled
+-    // let auth_config = app_config::SecurityConfig {
+-    //     issuer: cfg.keycloak_issuer.unwrap_or_else(|| "http://localhost:8080/realms/his".into()),
+-    //     audience: cfg.auth_audience,
+-    //     jwks_ttl: Some("10m".into()),
+-    //     realm: "his".into(),
+-    // };
+-    // let validator = KeycloakValidator::from_security_config(&auth_config);
+-
+     let port = cfg.service_port;
+     let host = format!("0.0.0.0:{}", port);
+ 
+     HttpServer::new(move || {
+         let cors = Cors::permissive();
+         let governor_conf = GovernorConfigBuilder::default().finish().unwrap();
++        let auth_middleware = AuthMiddleware::new(KeycloakValidator::from_security_config(&cfg.security), AuthConfig {
++            optional: false,
++            required_scopes: vec![],
++            any_role: vec![],
++        });
+ 
+         App::new()
+             .wrap(Logger::default())
+             .wrap(cors)
+             .wrap(Governor::new(&governor_conf))
+-            // Demo auth middleware (temporarily)
+-            .wrap(crate::http::middleware::DemoAuth)
++            .wrap(auth_middleware)
+             // app data
+             .app_data(web::Data::new(pool.clone()))
+             .app_data(web::Data::new(kafka.clone()))
+diff --git a/services/patient-service/Cargo.toml b/services/patient-service/Cargo.toml
+index 1592c0e..ed7142f 100644
+--- a/services/patient-service/Cargo.toml
++++ b/services/patient-service/Cargo.toml
+@@ -1,4 +1,55 @@
+ [package]
+-name="patient-service"
+-version="0.0.0"
+-edition="2021"
++name = "patient-service"
++version = "0.1.0"
++edition = "2021"
++
++[dependencies]
++actix-web = "4"
++actix-cors = "0.7"
++actix-governor = "0.5"
++serde = { version = "1", features = ["derive"] }
++serde_json = "1"
++serde_with = "3"
++config = "0.14"
++dotenvy = "0.15"
++thiserror = "1"
++anyhow = "1"
++uuid = { version = "1", features = ["v4", "serde"] }
++chrono = { version = "0.4", features = ["serde"] }
++validator = { version = "0.15", features = ["derive"] }
++actix-web-validator = "4"
++# Database
++sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros"] }
++tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
++# Kafka (optional) - disabled for now due to CMake requirement
++# rdkafka = { version = "0.36", features = ["cmake-build"], optional = true }
++# HTTP client
++reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
++# JWT if needed
++jsonwebtoken = "9"
++# OpenAPI
++utoipa = { version = "4", features = ["actix_extras", "chrono", "uuid"] }
++utoipa-swagger-ui = { version = "7", features = ["actix-web"] }
++# Observability
++tracing = "0.1"
++tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
++# Hash for ETag
++sha2 = "0.10"
++# Futures support
++futures-util = "0.3"
++
++# workspace crates
++app-auth = { path = "../../crates/app-auth" }
++app-error = { path = "../../crates/app-error" }
++app-telemetry = { path = "../../crates/app-telemetry" }
++app-web = { path = "../../crates/app-web" }
++# app-kafka = { path = "../../crates/app-kafka" }  # Disabled due to CMake requirement
++app-config = { path = "../../crates/app-config" }
++
++[features]
++default = []
++# kafka = ["rdkafka"]
++
++[profile.release]
++codegen-units = 1
++lto = true
+diff --git a/services/patient-service/Makefile b/services/patient-service/Makefile
+index ec3f550..71cac8c 100644
+--- a/services/patient-service/Makefile
++++ b/services/patient-service/Makefile
+@@ -1 +1,11 @@
+-run:; @echo running placeholder
++run:
++	cargo run -p patient-service
++
++migrate:
++	sqlx migrate run
++
++lint:
++	cargo clippy -p patient-service -- -D warnings
++
++fmt:
++	cargo fmt --all
+diff --git a/services/patient-service/README.md b/services/patient-service/README.md
+index fdffa2a..1cb8a78 100644
+--- a/services/patient-service/README.md
++++ b/services/patient-service/README.md
+@@ -1 +1,26 @@
+-# placeholder
++# patient-service (ADT)
++
++Quản lý Patient & Encounter. RBAC theo permission policy từ iam-service.
++
++## Chạy nhanh
++
++```bash
++export DATABASE_URL=postgres://postgres:postgres@localhost:5432/patient
++sqlx migrate run
++cargo run -p patient-service
++```
++
++## API chính
++
++* `GET  /api/v1/patients` (list/search) — perm: `his.patient.list`
++* `POST /api/v1/patients` — perm: `his.patient.create`
++* `GET  /api/v1/patients/{id}` — perm: `his.patient.read`
++* `PUT  /api/v1/patients/{id}` — perm: `his.patient.update`
++* `GET  /api/v1/encounters` — perm: `his.encounter.list`
++* `POST /api/v1/encounters` — perm: `his.encounter.create`
++* `PUT  /api/v1/encounters/{id}` — perm: `his.encounter.update`
++* `PUT  /api/v1/encounters/{id}:close` — perm: `his.encounter.close`
++
++## Swagger
++
++* `/swagger` | `/api-docs/openapi.json`
+diff --git a/services/patient-service/migrations/0001_patient.sql b/services/patient-service/migrations/0001_patient.sql
+new file mode 100644
+index 0000000..0b8546d
+--- /dev/null
++++ b/services/patient-service/migrations/0001_patient.sql
+@@ -0,0 +1,22 @@
++CREATE TABLE IF NOT EXISTS patients (
++  id UUID PRIMARY KEY,
++  mrn VARCHAR(64) UNIQUE,                 -- Medical Record Number
++  national_id VARCHAR(64),                -- CCCD/CMND/SSN
++  passport_no VARCHAR(64),
++  full_name VARCHAR(255) NOT NULL,
++  first_name VARCHAR(100),
++  last_name VARCHAR(100),
++  gender VARCHAR(16) NOT NULL,            -- male/female/other
++  birth_date DATE,
++  phone VARCHAR(32),
++  email VARCHAR(120),
++  address TEXT,
++  blood_type VARCHAR(8),
++  marital_status VARCHAR(16),
++  is_active BOOLEAN NOT NULL DEFAULT TRUE,
++  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
++  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
++);
++
++CREATE INDEX IF NOT EXISTS idx_patients_full_name ON patients(full_name);
++CREATE INDEX IF NOT EXISTS idx_patients_mrn ON patients(mrn);
+diff --git a/services/patient-service/migrations/0002_encounter.sql b/services/patient-service/migrations/0002_encounter.sql
+new file mode 100644
+index 0000000..34a4f4a
+--- /dev/null
++++ b/services/patient-service/migrations/0002_encounter.sql
+@@ -0,0 +1,16 @@
++CREATE TABLE IF NOT EXISTS encounters (
++  id UUID PRIMARY KEY,
++  patient_id UUID NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
++  encounter_no VARCHAR(64) UNIQUE NOT NULL,
++  encounter_type VARCHAR(16) NOT NULL,      -- OPD/IPD/ER
++  status VARCHAR(16) NOT NULL,              -- PLANNED/INPROGRESS/FINISHED/CANCELLED
++  department_code VARCHAR(32),              -- liên quan master departments
++  attending_doctor_id VARCHAR(64),
++  admitted_at TIMESTAMPTZ,
++  discharged_at TIMESTAMPTZ,
++  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
++  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
++);
++
++CREATE INDEX IF NOT EXISTS idx_encounters_patient ON encounters(patient_id);
++CREATE INDEX IF NOT EXISTS idx_encounters_status ON encounters(status);
+diff --git a/services/patient-service/src/config.rs b/services/patient-service/src/config.rs
+new file mode 100644
+index 0000000..55167db
+--- /dev/null
++++ b/services/patient-service/src/config.rs
+@@ -0,0 +1,27 @@
++use serde::Deserialize;
++
++#[derive(Debug, Deserialize, Clone)]
++pub struct Settings {
++    pub service_name: String,
++    pub service_port: u16,
++    pub database_url: String,
++    // Security
++    pub security: app_config::SecurityConfig,
++    // IAM
++    pub iam_service_base_url: Option<String>,
++    pub iam_service_token: Option<String>,
++    // Kafka
++    pub kafka_brokers: Option<String>,
++    pub kafka_client_id: Option<String>,
++}
++
++impl Settings {
++    pub fn load() -> Self {
++        dotenvy::dotenv().ok();
++        let cfg = config::Config::builder()
++            .add_source(config::Environment::default().separator("_"))
++            .build()
++            .expect("config build");
++        cfg.try_deserialize().expect("config deserialize")
++    }
++}
+diff --git a/services/patient-service/src/config/loader.rs b/services/patient-service/src/config/loader.rs
+deleted file mode 100644
+index c50818a..0000000
+--- a/services/patient-service/src/config/loader.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service config loader.rs placeholder
+diff --git a/services/patient-service/src/config/mod.rs b/services/patient-service/src/config/mod.rs
+deleted file mode 100644
+index 2fcb8d3..0000000
+--- a/services/patient-service/src/config/mod.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service config mod.rs placeholder
+diff --git a/services/patient-service/src/config/types.rs b/services/patient-service/src/config/types.rs
+deleted file mode 100644
+index 20f9d36..0000000
+--- a/services/patient-service/src/config/types.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service config types.rs placeholder
+diff --git a/services/patient-service/src/domain/mod.rs b/services/patient-service/src/domain/mod.rs
+index c9b9a69..80eb27c 100644
+--- a/services/patient-service/src/domain/mod.rs
++++ b/services/patient-service/src/domain/mod.rs
+@@ -1 +1,3 @@
+-// domain mod
++pub mod models;
++pub mod repo;
++pub mod service;
+diff --git a/services/patient-service/src/domain/models.rs b/services/patient-service/src/domain/models.rs
+new file mode 100644
+index 0000000..07aefc9
+--- /dev/null
++++ b/services/patient-service/src/domain/models.rs
+@@ -0,0 +1,39 @@
++use chrono::{DateTime, NaiveDate, Utc};
++use serde::{Deserialize, Serialize};
++use uuid::Uuid;
++
++#[derive(Debug, Serialize, Deserialize, sqlx::FromRow, utoipa::ToSchema)]
++pub struct Patient {
++    pub id: Uuid,
++    pub mrn: Option<String>,
++    pub national_id: Option<String>,
++    pub passport_no: Option<String>,
++    pub full_name: String,
++    pub first_name: Option<String>,
++    pub last_name: Option<String>,
++    pub gender: String,
++    pub birth_date: Option<NaiveDate>,
++    pub phone: Option<String>,
++    pub email: Option<String>,
++    pub address: Option<String>,
++    pub blood_type: Option<String>,
++    pub marital_status: Option<String>,
++    pub is_active: bool,
++    pub created_at: DateTime<Utc>,
++    pub updated_at: DateTime<Utc>,
++}
++
++#[derive(Debug, Serialize, Deserialize, sqlx::FromRow, utoipa::ToSchema)]
++pub struct Encounter {
++    pub id: Uuid,
++    pub patient_id: Uuid,
++    pub encounter_no: String,
++    pub encounter_type: String,
++    pub status: String,
++    pub department_code: Option<String>,
++    pub attending_doctor_id: Option<String>,
++    pub admitted_at: Option<DateTime<Utc>>,
++    pub discharged_at: Option<DateTime<Utc>>,
++    pub created_at: DateTime<Utc>,
++    pub updated_at: DateTime<Utc>,
++}
+diff --git a/services/patient-service/src/domain/repo.rs b/services/patient-service/src/domain/repo.rs
+new file mode 100644
+index 0000000..c83839e
+--- /dev/null
++++ b/services/patient-service/src/domain/repo.rs
+@@ -0,0 +1,269 @@
++use crate::domain::models::{Patient, Encounter};
++use sqlx::{Pool, Postgres};
++use uuid::Uuid;
++
++pub struct PatientRepo<'a> {
++    pub db: &'a Pool<Postgres>
++}
++
++impl<'a> PatientRepo<'a> {
++    pub async fn create(&self, p: &Patient) -> anyhow::Result<()> {
++        sqlx::query(r#"
++            INSERT INTO patients (id, mrn, national_id, passport_no, full_name, first_name, last_name, gender, birth_date, phone, email, address, blood_type, marital_status, is_active)
++            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
++        "#)
++        .bind(p.id)
++        .bind(&p.mrn)
++        .bind(&p.national_id)
++        .bind(&p.passport_no)
++        .bind(&p.full_name)
++        .bind(&p.first_name)
++        .bind(&p.last_name)
++        .bind(&p.gender)
++        .bind(p.birth_date)
++        .bind(&p.phone)
++        .bind(&p.email)
++        .bind(&p.address)
++        .bind(&p.blood_type)
++        .bind(&p.marital_status)
++        .bind(p.is_active)
++        .execute(self.db)
++        .await?;
++        Ok(())
++    }
++
++    pub async fn update(&self, id: Uuid, full_name: Option<&str>, gender: Option<&str>, birth_date: Option<chrono::NaiveDate>, phone: Option<&str>, email: Option<&str>, address: Option<&str>, is_active: Option<bool>) -> anyhow::Result<Option<Patient>> {
++        let rec = sqlx::query_as::<_, Patient>(r#"
++            UPDATE patients
++            SET full_name = COALESCE($2, full_name),
++                gender = COALESCE($3, gender),
++                birth_date = COALESCE($4, birth_date),
++                phone = COALESCE($5, phone),
++                email = COALESCE($6, email),
++                address = COALESCE($7, address),
++                is_active = COALESCE($8, is_active),
++                updated_at = NOW()
++            WHERE id = $1
++            RETURNING id, mrn, national_id, passport_no, full_name, first_name, last_name, gender, birth_date, phone, email, address, blood_type, marital_status, is_active, created_at, updated_at
++        "#)
++        .bind(id)
++        .bind(full_name)
++        .bind(gender)
++        .bind(birth_date)
++        .bind(phone)
++        .bind(email)
++        .bind(address)
++        .bind(is_active)
++        .fetch_optional(self.db)
++        .await?;
++        Ok(rec)
++    }
++
++    pub async fn find(&self, id: Uuid) -> anyhow::Result<Option<Patient>> {
++        let rec = sqlx::query_as::<_, Patient>(r#"
++            SELECT id, mrn, national_id, passport_no, full_name, first_name, last_name, gender, birth_date, phone, email, address, blood_type, marital_status, is_active, created_at, updated_at
++            FROM patients WHERE id = $1
++        "#)
++        .bind(id)
++        .fetch_optional(self.db)
++        .await?;
++        Ok(rec)
++    }
++
++    pub async fn list_paged(&self, keyword: Option<&str>, page: i64, size: i64) -> anyhow::Result<(Vec<Patient>, i64)> {
++        let page = page.max(1);
++        let size = size.clamp(1, 200);
++        let offset = (page-1)*size;
++
++        if let Some(q) = keyword { // search by name or MRN
++            let like = format!("%{}%", q);
++            let rows = sqlx::query_as::<_, Patient>(r#"
++                SELECT id, mrn, national_id, passport_no, full_name, first_name, last_name, gender, birth_date, phone, email, address, blood_type, marital_status, is_active, created_at, updated_at
++                FROM patients
++                WHERE full_name ILIKE $1 OR mrn ILIKE $1
++                ORDER BY full_name OFFSET $2 LIMIT $3
++            "#)
++            .bind(&like)
++            .bind(offset)
++            .bind(size)
++            .fetch_all(self.db)
++            .await?;
++            let total: i64 = sqlx::query_scalar(r#"
++                SELECT COUNT(1) FROM patients WHERE full_name ILIKE $1 OR mrn ILIKE $1
++            "#)
++            .bind(&like)
++            .fetch_one(self.db)
++            .await?;
++            Ok((rows, total))
++        } else {
++            let rows = sqlx::query_as::<_, Patient>(r#"
++                SELECT id, mrn, national_id, passport_no, full_name, first_name, last_name, gender, birth_date, phone, email, address, blood_type, marital_status, is_active, created_at, updated_at
++                FROM patients
++                ORDER BY full_name OFFSET $1 LIMIT $2
++            "#)
++            .bind(offset)
++            .bind(size)
++            .fetch_all(self.db)
++            .await?;
++            let total: i64 = sqlx::query_scalar(r#"
++                SELECT COUNT(1) FROM patients
++            "#)
++            .fetch_one(self.db)
++            .await?;
++            Ok((rows, total))
++        }
++    }
++}
++
++pub struct EncounterRepo<'a> {
++    pub db: &'a Pool<Postgres>
++}
++
++impl<'a> EncounterRepo<'a> {
++    pub async fn create(&self, e: &Encounter) -> anyhow::Result<()> {
++        sqlx::query(r#"
++            INSERT INTO encounters (id, patient_id, encounter_no, encounter_type, status, department_code, attending_doctor_id, admitted_at, discharged_at)
++            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
++        "#)
++        .bind(e.id)
++        .bind(e.patient_id)
++        .bind(&e.encounter_no)
++        .bind(&e.encounter_type)
++        .bind(&e.status)
++        .bind(&e.department_code)
++        .bind(&e.attending_doctor_id)
++        .bind(e.admitted_at)
++        .bind(e.discharged_at)
++        .execute(self.db)
++        .await?;
++        Ok(())
++    }
++
++    pub async fn update(&self, id: Uuid, status: Option<&str>, dept: Option<&str>, doctor: Option<&str>) -> anyhow::Result<Option<Encounter>> {
++        let rec = sqlx::query_as::<_, Encounter>(r#"
++            UPDATE encounters
++            SET status = COALESCE($2, status),
++                department_code = COALESCE($3, department_code),
++                attending_doctor_id = COALESCE($4, attending_doctor_id),
++                updated_at = NOW()
++            WHERE id = $1
++            RETURNING id, patient_id, encounter_no, encounter_type, status, department_code, attending_doctor_id, admitted_at, discharged_at, created_at, updated_at
++        "#)
++        .bind(id)
++        .bind(status)
++        .bind(dept)
++        .bind(doctor)
++        .fetch_optional(self.db)
++        .await?;
++        Ok(rec)
++    }
++
++    pub async fn close(&self, id: Uuid) -> anyhow::Result<Option<Encounter>> {
++        let rec = sqlx::query_as::<_, Encounter>(r#"
++            UPDATE encounters
++            SET status = 'FINISHED', discharged_at = NOW(), updated_at = NOW()
++            WHERE id = $1 AND status <> 'FINISHED'
++            RETURNING id, patient_id, encounter_no, encounter_type, status, department_code, attending_doctor_id, admitted_at, discharged_at, created_at, updated_at
++        "#)
++        .bind(id)
++        .fetch_optional(self.db)
++        .await?;
++        Ok(rec)
++    }
++
++    pub async fn find(&self, id: Uuid) -> anyhow::Result<Option<Encounter>> {
++        let rec = sqlx::query_as::<_, Encounter>(r#"
++            SELECT id, patient_id, encounter_no, encounter_type, status, department_code, attending_doctor_id, admitted_at, discharged_at, created_at, updated_at
++            FROM encounters WHERE id = $1
++        "#)
++        .bind(id)
++        .fetch_optional(self.db)
++        .await?;
++        Ok(rec)
++    }
++
++    pub async fn list_paged(&self, patient_id: Option<Uuid>, status: Option<&str>, page: i64, size: i64) -> anyhow::Result<(Vec<Encounter>, i64)> {
++        let page = page.max(1);
++        let size = size.clamp(1, 200);
++        let offset = (page-1)*size;
++
++        match (patient_id, status) {
++            (Some(pid), Some(st)) => {
++                let rows = sqlx::query_as::<_, Encounter>(r#"
++                    SELECT id, patient_id, encounter_no, encounter_type, status, department_code, attending_doctor_id, admitted_at, discharged_at, created_at, updated_at
++                    FROM encounters WHERE patient_id=$1 AND status=$2
++                    ORDER BY created_at DESC OFFSET $3 LIMIT $4
++                "#)
++                .bind(pid)
++                .bind(st)
++                .bind(offset)
++                .bind(size)
++                .fetch_all(self.db)
++                .await?;
++                let total: i64 = sqlx::query_scalar(r#"
++                    SELECT COUNT(1) FROM encounters WHERE patient_id=$1 AND status=$2
++                "#)
++                .bind(pid)
++                .bind(st)
++                .fetch_one(self.db)
++                .await?;
++                Ok((rows, total))
++            }
++            (Some(pid), None) => {
++                let rows = sqlx::query_as::<_, Encounter>(r#"
++                    SELECT id, patient_id, encounter_no, encounter_type, status, department_code, attending_doctor_id, admitted_at, discharged_at, created_at, updated_at
++                    FROM encounters WHERE patient_id=$1
++                    ORDER BY created_at DESC OFFSET $2 LIMIT $3
++                "#)
++                .bind(pid)
++                .bind(offset)
++                .bind(size)
++                .fetch_all(self.db)
++                .await?;
++                let total: i64 = sqlx::query_scalar(r#"
++                    SELECT COUNT(1) FROM encounters WHERE patient_id=$1
++                "#)
++                .bind(pid)
++                .fetch_one(self.db)
++                .await?;
++                Ok((rows, total))
++            }
++            (None, Some(st)) => {
++                let rows = sqlx::query_as::<_, Encounter>(r#"
++                    SELECT id, patient_id, encounter_no, encounter_type, status, department_code, attending_doctor_id, admitted_at, discharged_at, created_at, updated_at
++                    FROM encounters WHERE status=$1
++                    ORDER BY created_at DESC OFFSET $2 LIMIT $3
++                "#)
++                .bind(st)
++                .bind(offset)
++                .bind(size)
++                .fetch_all(self.db)
++                .await?;
++                let total: i64 = sqlx::query_scalar(r#"
++                    SELECT COUNT(1) FROM encounters WHERE status=$1
++                "#)
++                .bind(st)
++                .fetch_one(self.db)
++                .await?;
++                Ok((rows, total))
++            }
++            (None, None) => {
++                let rows = sqlx::query_as::<_, Encounter>(r#"
++                    SELECT id, patient_id, encounter_no, encounter_type, status, department_code, attending_doctor_id, admitted_at, discharged_at, created_at, updated_at
++                    FROM encounters
++                    ORDER BY created_at DESC OFFSET $1 LIMIT $2
++                "#)
++                .bind(offset)
++                .bind(size)
++                .fetch_all(self.db)
++                .await?;
++                let total: i64 = sqlx::query_scalar(r#"
++                    SELECT COUNT(1) FROM encounters
++                "#)
++                .fetch_one(self.db)
++                .await?;
++                Ok((rows, total))
++            }
++        }
++    }
++}
+diff --git a/services/patient-service/src/domain/service.rs b/services/patient-service/src/domain/service.rs
+new file mode 100644
+index 0000000..75db673
+--- /dev/null
++++ b/services/patient-service/src/domain/service.rs
+@@ -0,0 +1,82 @@
++use crate::domain::{models::{Patient, Encounter}, repo::{PatientRepo, EncounterRepo}};
++use crate::infrastructure::kafka::Kafka;
++use uuid::Uuid;
++use serde::Serialize;
++
++#[derive(Serialize)]
++struct PatientEvent<'a, T> {
++    event: &'a str,
++    data: T
++}
++
++#[derive(Serialize)]
++struct EncounterEvent<'a, T> {
++    event: &'a str,
++    data: T
++}
++
++pub struct PatientService<'a> {
++    pub repo: PatientRepo<'a>,
++    pub kafka: Option<&'a Kafka>
++}
++
++impl<'a> PatientService<'a> {
++    pub async fn create(&self, req: &crate::dto::patient_dto::CreatePatientReq) -> anyhow::Result<Uuid> {
++        let id = Uuid::new_v4();
++        let p = Patient {
++            id,
++            mrn: req.mrn.clone(),
++            national_id: req.national_id.clone(),
++            passport_no: req.passport_no.clone(),
++            full_name: req.full_name.clone(),
++            first_name: None,
++            last_name: None,
++            gender: req.gender.clone(),
++            birth_date: req.birth_date,
++            phone: req.phone.clone(),
++            email: req.email.clone(),
++            address: req.address.clone(),
++            blood_type: None,
++            marital_status: None,
++            is_active: true,
++            created_at: chrono::Utc::now(),
++            updated_at: chrono::Utc::now()
++        };
++        self.repo.create(&p).await?;
++        if let Some(k) = self.kafka {
++            let evt = PatientEvent { event: "his.patient.created", data: &p };
++            k.publish("his.patient.v1", &id.to_string(), &evt).await.ok();
++        }
++        Ok(id)
++    }
++}
++
++pub struct EncounterService<'a> {
++    pub repo: EncounterRepo<'a>,
++    pub kafka: Option<&'a Kafka>
++}
++
++impl<'a> EncounterService<'a> {
++    pub async fn create(&self, req: &crate::dto::encounter_dto::CreateEncounterReq) -> anyhow::Result<Uuid> {
++        let id = Uuid::new_v4();
++        let e = Encounter {
++            id,
++            patient_id: req.patient_id,
++            encounter_no: req.encounter_no.clone(),
++            encounter_type: req.encounter_type.clone(),
++            status: "PLANNED".into(),
++            department_code: req.department_code.clone(),
++            attending_doctor_id: None,
++            admitted_at: Some(chrono::Utc::now()),
++            discharged_at: None,
++            created_at: chrono::Utc::now(),
++            updated_at: chrono::Utc::now()
++        };
++        self.repo.create(&e).await?;
++        if let Some(k) = self.kafka {
++            let evt = EncounterEvent { event: "his.encounter.created", data: &e };
++            k.publish("his.encounter.v1", &id.to_string(), &evt).await.ok();
++        }
++        Ok(id)
++    }
++}
+diff --git a/services/patient-service/src/dto/encounter_dto.rs b/services/patient-service/src/dto/encounter_dto.rs
+new file mode 100644
+index 0000000..8a6332f
+--- /dev/null
++++ b/services/patient-service/src/dto/encounter_dto.rs
+@@ -0,0 +1,39 @@
++use serde::{Deserialize, Serialize};
++use validator::Validate;
++use uuid::Uuid;
++use utoipa::ToSchema;
++
++#[derive(Debug, Deserialize, Serialize, Validate, ToSchema)]
++pub struct CreateEncounterReq {
++    pub patient_id: Uuid,
++    #[validate(length(min = 1, message = "Encounter number is required"))]
++    pub encounter_no: String,
++    #[validate(length(min = 1, message = "Encounter type is required"))]
++    pub encounter_type: String, // OPD/IPD/ER
++    pub department_code: Option<String>,
++}
++
++#[derive(Debug, Deserialize, Serialize, Validate, ToSchema)]
++pub struct UpdateEncounterReq {
++    pub status: Option<String>,
++    pub department_code: Option<String>,
++    pub attending_doctor_id: Option<String>,
++}
++
++#[derive(Debug, Serialize, ToSchema)]
++pub struct EncounterRes {
++    pub id: Uuid,
++    pub encounter_no: String,
++    pub encounter_type: String,
++    pub status: String,
++}
++
++#[derive(Debug, Deserialize, Validate)]
++pub struct EncounterQuery {
++    pub patient_id: Option<Uuid>,
++    pub status: Option<String>,
++    #[validate(range(min = 1, message = "Page must be at least 1"))]
++    pub page: Option<i64>,
++    #[validate(range(min = 1, max = 200, message = "Page size must be between 1 and 200"))]
++    pub page_size: Option<i64>
++}
+diff --git a/services/patient-service/src/dto/mod.rs b/services/patient-service/src/dto/mod.rs
+new file mode 100644
+index 0000000..e7447a1
+--- /dev/null
++++ b/services/patient-service/src/dto/mod.rs
+@@ -0,0 +1,2 @@
++pub mod patient_dto;
++pub mod encounter_dto;
+diff --git a/services/patient-service/src/dto/patient_dto.rs b/services/patient-service/src/dto/patient_dto.rs
+new file mode 100644
+index 0000000..f5dbfe5
+--- /dev/null
++++ b/services/patient-service/src/dto/patient_dto.rs
+@@ -0,0 +1,57 @@
++use serde::{Deserialize, Serialize};
++use validator::Validate;
++use uuid::Uuid;
++use utoipa::ToSchema;
++
++#[derive(Debug, Deserialize, Serialize, Validate, ToSchema)]
++pub struct CreatePatientReq {
++    #[validate(length(min = 1, message = "Full name is required"))]
++    pub full_name: String,
++    #[validate(length(min = 1, message = "Gender is required"))]
++    pub gender: String,
++    pub birth_date: Option<chrono::NaiveDate>,
++    pub mrn: Option<String>,
++    pub national_id: Option<String>,
++    pub passport_no: Option<String>,
++    pub phone: Option<String>,
++    pub email: Option<String>,
++    pub address: Option<String>,
++}
++
++#[derive(Debug, Deserialize, Serialize, Validate, ToSchema)]
++pub struct UpdatePatientReq {
++    #[validate(length(min = 1, message = "Full name cannot be empty"))]
++    pub full_name: Option<String>,
++    #[validate(length(min = 1, message = "Gender cannot be empty"))]
++    pub gender: Option<String>,
++    pub birth_date: Option<chrono::NaiveDate>,
++    pub phone: Option<String>,
++    pub email: Option<String>,
++    pub address: Option<String>,
++    pub is_active: Option<bool>,
++}
++
++#[derive(Debug, Serialize, ToSchema)]
++pub struct PatientRes {
++    pub id: Uuid,
++    pub mrn: Option<String>,
++    pub full_name: String,
++    pub gender: String,
++    pub birth_date: Option<chrono::NaiveDate>,
++}
++
++#[derive(Debug, Deserialize, Validate)]
++pub struct PatientQuery {
++    pub q: Option<String>,     // search by name/mrn
++    #[validate(range(min = 1, message = "Page must be at least 1"))]
++    pub page: Option<i64>,
++    #[validate(range(min = 1, max = 200, message = "Page size must be between 1 and 200"))]
++    pub page_size: Option<i64>,
++}
++
++pub fn calc_etag(bytes: &[u8]) -> String {
++    use sha2::{Digest, Sha256};
++    let mut hasher = Sha256::new();
++    hasher.update(bytes);
++    format!("\"{:x}\"", hasher.finalize())
++}
+diff --git a/services/patient-service/src/error.rs b/services/patient-service/src/error.rs
+index f293884..b640201 100644
+--- a/services/patient-service/src/error.rs
++++ b/services/patient-service/src/error.rs
+@@ -1 +1,54 @@
+-// patient-service error.rs placeholder
++use actix_web::{HttpResponse, ResponseError};
++use serde::Serialize;
++use thiserror::Error;
++
++#[derive(Debug, Serialize)]
++pub struct ProblemDetails {
++    pub r#type: String,
++    pub title: String,
++    pub status: u16,
++    pub detail: Option<String>,
++}
++
++impl ProblemDetails {
++    pub const CONTENT_TYPE: &'static str = "application/problem+json";
++}
++
++#[derive(Debug, Error)]
++pub enum AppError {
++    #[error("Unauthorized")]
++    Unauthorized,
++    #[error("Forbidden")]
++    Forbidden,
++    #[error("Not Found")]
++    NotFound,
++    #[error("Bad Request: {0}")]
++    BadRequest(String),
++    #[error("Conflict: {0}")]
++    Conflict(String),
++    #[error("Internal: {0}")]
++    Internal(String),
++}
++
++impl ResponseError for AppError {
++    fn error_response(&self) -> HttpResponse {
++        use AppError::*;
++        let (status, title, detail) = match self {
++            Unauthorized => (401, "Unauthorized", None),
++            Forbidden => (403, "Forbidden", None),
++            NotFound => (404, "Not Found", None),
++            BadRequest(msg) => (400, "Bad Request", Some(msg.clone())),
++            Conflict(msg) => (409, "Conflict", Some(msg.clone())),
++            Internal(msg) => (500, "Internal Server Error", Some(msg.clone())),
++        };
++        let body = ProblemDetails {
++            r#type: "about:blank".into(),
++            title: title.into(),
++            status,
++            detail
++        };
++        HttpResponse::build(actix_web::http::StatusCode::from_u16(status).unwrap())
++            .insert_header((actix_web::http::header::CONTENT_TYPE, ProblemDetails::CONTENT_TYPE))
++            .json(body)
++    }
++}
+diff --git a/services/patient-service/src/http/handlers/encounters.rs b/services/patient-service/src/http/handlers/encounters.rs
+new file mode 100644
+index 0000000..4665184
+--- /dev/null
++++ b/services/patient-service/src/http/handlers/encounters.rs
+@@ -0,0 +1,119 @@
++use actix_web::{web, HttpResponse};
++use uuid::Uuid;
++use actix_web_validator::{Query, Json};
++use actix_web::web::Path;
++
++use crate::{domain::{repo::EncounterRepo, service::EncounterService}, dto::encounter_dto::{CreateEncounterReq, UpdateEncounterReq, EncounterRes, EncounterQuery}};
++
++#[utoipa::path(
++    get,
++    path="/api/v1/encounters",
++    params(("patient_id"=Option<Uuid>, Query, description="Filter by patient ID"),("status"=Option<String>, Query, description="Filter by status"),("page"=Option<i64>, Query, description="Page number"),("page_size"=Option<i64>, Query, description="Page size")),
++    security(("bearer_auth"=[]))
++)]
++pub async fn list_encounters(
++    db: web::Data<sqlx::Pool<sqlx::Postgres>>,
++    q: Query<EncounterQuery>
++) -> actix_web::Result<HttpResponse> {
++    let page = q.page.unwrap_or(1);
++    let size = q.page_size.unwrap_or(50);
++    let repo = EncounterRepo { db: &db };
++    let (items, total) = repo.list_paged(q.patient_id, q.status.as_deref(), page, size).await.map_err(|e| {
++        tracing::error!(?e,"list");
++        crate::error::AppError::Internal("DB".into())
++    })?;
++    let res: Vec<EncounterRes> = items.into_iter().map(|e| EncounterRes {
++        id: e.id,
++        encounter_no: e.encounter_no,
++        encounter_type: e.encounter_type,
++        status: e.status
++    }).collect();
++    Ok(HttpResponse::Ok()
++        .append_header(("X-Total-Count", total.to_string()))
++        .append_header(("X-Page", page.to_string()))
++        .append_header(("X-Page-Size", size.to_string()))
++        .json(res))
++}
++
++#[utoipa::path(
++    post,
++    path="/api/v1/encounters",
++    request_body=CreateEncounterReq,
++    security(("bearer_auth"=[]))
++)]
++pub async fn create_encounter(
++    db: web::Data<sqlx::Pool<sqlx::Postgres>>,
++    kafka: web::Data<Option<crate::infrastructure::kafka::Kafka>>,
++    payload: Json<CreateEncounterReq>
++) -> actix_web::Result<HttpResponse> {
++    let repo = EncounterRepo { db: &db };
++    let svc = EncounterService { repo, kafka: kafka.as_ref().as_ref() };
++    let id = svc.create(&payload).await.map_err(|e| {
++        tracing::error!(?e,"create");
++        crate::error::AppError::Internal("DB".into())
++    })?;
++    let repo = EncounterRepo { db: &db };
++    let rec = repo.find(id).await.map_err(|e| {
++        tracing::error!(?e,"find");
++        crate::error::AppError::Internal("DB".into())
++    })?.ok_or(crate::error::AppError::NotFound)?;
++    let res = EncounterRes {
++        id: rec.id,
++        encounter_no: rec.encounter_no,
++        encounter_type: rec.encounter_type,
++        status: rec.status
++    };
++    Ok(HttpResponse::Created().json(res))
++}
++
++#[utoipa::path(
++    put,
++    path="/api/v1/encounters/{id}",
++    request_body=UpdateEncounterReq,
++    security(("bearer_auth"=[]))
++)]
++pub async fn update_encounter(
++    db: web::Data<sqlx::Pool<sqlx::Postgres>>,
++    path: Path<Uuid>,
++    payload: Json<UpdateEncounterReq>
++) -> actix_web::Result<HttpResponse> {
++    let id = path.into_inner();
++    let repo = EncounterRepo { db: &db };
++    let rec = repo.update(id, payload.status.as_deref(), payload.department_code.as_deref(), payload.attending_doctor_id.as_deref())
++        .await.map_err(|e| {
++            tracing::error!(?e,"update");
++            crate::error::AppError::Internal("DB".into())
++        })?
++        .ok_or(crate::error::AppError::NotFound)?;
++    let res = EncounterRes {
++        id: rec.id,
++        encounter_no: rec.encounter_no,
++        encounter_type: rec.encounter_type,
++        status: rec.status
++    };
++    Ok(HttpResponse::Ok().json(res))
++}
++
++#[utoipa::path(
++    put,
++    path="/api/v1/encounters/{id}:close",
++    security(("bearer_auth"=[]))
++)]
++pub async fn close_encounter(
++    db: web::Data<sqlx::Pool<sqlx::Postgres>>,
++    path: Path<Uuid>
++) -> actix_web::Result<HttpResponse> {
++    let repo = EncounterRepo { db: &db };
++    let rec = repo.close(path.into_inner()).await.map_err(|e| {
++        tracing::error!(?e,"close");
++        crate::error::AppError::Internal("DB".into())
++    })?
++        .ok_or(crate::error::AppError::NotFound)?;
++    let res = EncounterRes {
++        id: rec.id,
++        encounter_no: rec.encounter_no,
++        encounter_type: rec.encounter_type,
++        status: rec.status
++    };
++    Ok(HttpResponse::Ok().json(res))
++}
+diff --git a/services/patient-service/src/http/handlers/encounters/admit.rs b/services/patient-service/src/http/handlers/encounters/admit.rs
+deleted file mode 100644
+index eba2969..0000000
+--- a/services/patient-service/src/http/handlers/encounters/admit.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/handlers/encounters/admit.rs placeholder
+diff --git a/services/patient-service/src/http/handlers/encounters/discharge.rs b/services/patient-service/src/http/handlers/encounters/discharge.rs
+deleted file mode 100644
+index 4a9e92c..0000000
+--- a/services/patient-service/src/http/handlers/encounters/discharge.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/handlers/encounters/discharge.rs placeholder
+diff --git a/services/patient-service/src/http/handlers/encounters/transfer.rs b/services/patient-service/src/http/handlers/encounters/transfer.rs
+deleted file mode 100644
+index 90ef5fb..0000000
+--- a/services/patient-service/src/http/handlers/encounters/transfer.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/handlers/encounters/transfer.rs placeholder
+diff --git a/services/patient-service/src/http/handlers/health.rs b/services/patient-service/src/http/handlers/health.rs
+index 2615a87..64ce719 100644
+--- a/services/patient-service/src/http/handlers/health.rs
++++ b/services/patient-service/src/http/handlers/health.rs
+@@ -1 +1,27 @@
+-// health handler
++use actix_web::{web, HttpResponse, Responder};
++use sqlx::Pool;
++use sqlx::Postgres;
++
++pub async fn healthz(db: web::Data<Pool<Postgres>>) -> impl Responder {
++    // Check database connection
++    let db_health = match sqlx::query("SELECT 1").fetch_one(&**db).await {
++        Ok(_) => "healthy",
++        Err(e) => {
++            tracing::error!(error=?e, "Database health check failed");
++            "unhealthy"
++        }
++    };
++
++    let status = if db_health == "healthy" { "ok" } else { "error" };
++
++    HttpResponse::Ok().json(serde_json::json!({
++        "status": status,
++        "timestamp": chrono::Utc::now().to_rfc3339(),
++        "services": {
++            "database": db_health,
++            "kafka": "not_checked" // TODO: Add Kafka health check
++        },
++        "version": env!("CARGO_PKG_VERSION"),
++        "service": "patient-service"
++    }))
++}
+diff --git a/services/patient-service/src/http/handlers/mod.rs b/services/patient-service/src/http/handlers/mod.rs
+index fde6f37..9bbd0e3 100644
+--- a/services/patient-service/src/http/handlers/mod.rs
++++ b/services/patient-service/src/http/handlers/mod.rs
+@@ -1 +1,3 @@
+-// handlers mod
++pub mod health;
++pub mod patients;
++pub mod encounters;
+diff --git a/services/patient-service/src/http/handlers/patients.rs b/services/patient-service/src/http/handlers/patients.rs
+new file mode 100644
+index 0000000..1c02b29
+--- /dev/null
++++ b/services/patient-service/src/http/handlers/patients.rs
+@@ -0,0 +1,143 @@
++use actix_web::{web, HttpResponse};
++use uuid::Uuid;
++use actix_web_validator::{Query, Json};
++use validator::Validate;
++use actix_web::web::Path;
++use app_web::extractors::auth_user::AuthUser;
++
++use crate::{domain::{repo::PatientRepo, service::PatientService}, dto::patient_dto::{CreatePatientReq, UpdatePatientReq, PatientRes, PatientQuery, calc_etag}};
++
++#[utoipa::path(
++    get,
++    path="/api/v1/patients",
++    params(("q"=Option<String>, Query, description="Search query"),("page"=Option<i64>, Query, description="Page number"),("page_size"=Option<i64>, Query, description="Page size")),
++    security(("bearer_auth"=[])),
++    responses((status=200, description="List patients", body=[PatientRes]))
++)]
++pub async fn list_patients(
++    req: actix_web::HttpRequest,
++    db: web::Data<sqlx::Pool<sqlx::Postgres>>,
++    q: Query<PatientQuery>,
++    _user: AuthUser
++) -> actix_web::Result<HttpResponse> {
++    let page = q.page.unwrap_or(1);
++    let size = q.page_size.unwrap_or(50);
++    let repo = PatientRepo { db: &db };
++    let (items, total) = repo.list_paged(q.q.as_deref(), page, size).await.map_err(|e| {
++        tracing::error!(?e,"list");
++        crate::error::AppError::Internal("DB".into())
++    })?;
++    let res: Vec<PatientRes> = items.into_iter().map(|p| PatientRes {
++        id: p.id,
++        mrn: p.mrn,
++        full_name: p.full_name,
++        gender: p.gender,
++        birth_date: p.birth_date
++    }).collect();
++
++    let body = serde_json::to_vec(&res).unwrap();
++    let etag = calc_etag(&body);
++    if let Some(tag) = req.headers().get(actix_web::http::header::IF_NONE_MATCH).and_then(|h| h.to_str().ok()) {
++        if tag == etag {
++            return Ok(HttpResponse::NotModified().finish());
++        }
++    }
++    Ok(HttpResponse::Ok()
++        .append_header((actix_web::http::header::ETAG, etag))
++        .append_header(("X-Total-Count", total.to_string()))
++        .append_header(("X-Page", page.to_string()))
++        .append_header(("X-Page-Size", size.to_string()))
++        .content_type("application/json")
++        .body(body))
++}
++
++#[utoipa::path(
++    post,
++    path="/api/v1/patients",
++    request_body=CreatePatientReq,
++    security(("bearer_auth"=[])),
++    responses((status=201, description="Created", body=PatientRes))
++)]
++pub async fn create_patient(
++    db: web::Data<sqlx::Pool<sqlx::Postgres>>,
++    kafka: web::Data<Option<crate::infrastructure::kafka::Kafka>>,
++    payload: Json<CreatePatientReq>
++) -> actix_web::Result<HttpResponse> {
++    if let Err(e) = payload.validate() {
++        return Err(crate::error::AppError::BadRequest(e.to_string()).into());
++    }
++    let repo = PatientRepo { db: &db };
++    let svc = PatientService { repo, kafka: kafka.as_ref().as_ref() };
++    let id = svc.create(&payload).await.map_err(|e| {
++        tracing::error!(?e,"create");
++        crate::error::AppError::Internal("DB".into())
++    })?;
++    let repo = PatientRepo { db: &db };
++    let rec = repo.find(id).await.map_err(|e| {
++        tracing::error!(?e,"get");
++        crate::error::AppError::Internal("DB".into())
++    })?.ok_or(crate::error::AppError::NotFound)?;
++    let res = PatientRes {
++        id: rec.id,
++        mrn: rec.mrn,
++        full_name: rec.full_name,
++        gender: rec.gender,
++        birth_date: rec.birth_date
++    };
++    Ok(HttpResponse::Created().json(res))
++}
++
++#[utoipa::path(
++    get,
++    path="/api/v1/patients/{id}",
++    security(("bearer_auth"=[])),
++    responses((status=200, body=PatientRes))
++)]
++pub async fn get_patient(
++    db: web::Data<sqlx::Pool<sqlx::Postgres>>,
++    path: Path<Uuid>
++) -> actix_web::Result<HttpResponse> {
++    let repo = PatientRepo { db: &db };
++    let rec = repo.find(path.into_inner()).await.map_err(|e| {
++        tracing::error!(?e,"get");
++        crate::error::AppError::Internal("DB".into())
++    })?.ok_or(crate::error::AppError::NotFound)?;
++    let res = PatientRes {
++        id: rec.id,
++        mrn: rec.mrn,
++        full_name: rec.full_name,
++        gender: rec.gender,
++        birth_date: rec.birth_date
++    };
++    Ok(HttpResponse::Ok().json(res))
++}
++
++#[utoipa::path(
++    put,
++    path="/api/v1/patients/{id}",
++    request_body=UpdatePatientReq,
++    security(("bearer_auth"=[])),
++    responses((status=200, body=PatientRes))
++)]
++pub async fn update_patient(
++    db: web::Data<sqlx::Pool<sqlx::Postgres>>,
++    path: Path<Uuid>,
++    payload: Json<UpdatePatientReq>
++) -> actix_web::Result<HttpResponse> {
++    let id = path.into_inner();
++    let repo = PatientRepo { db: &db };
++    let rec = repo.update(id, payload.full_name.as_deref(), payload.gender.as_deref(), payload.birth_date, payload.phone.as_deref(), payload.email.as_deref(), payload.address.as_deref(), payload.is_active)
++        .await.map_err(|e| {
++            tracing::error!(?e,"update");
++            crate::error::AppError::Internal("DB".into())
++        })?
++        .ok_or(crate::error::AppError::NotFound)?;
++    let res = PatientRes {
++        id: rec.id,
++        mrn: rec.mrn,
++        full_name: rec.full_name,
++        gender: rec.gender,
++        birth_date: rec.birth_date
++    };
++    Ok(HttpResponse::Ok().json(res))
++}
+diff --git a/services/patient-service/src/http/handlers/patients/create.rs b/services/patient-service/src/http/handlers/patients/create.rs
+deleted file mode 100644
+index c67bb0a..0000000
+--- a/services/patient-service/src/http/handlers/patients/create.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/handlers/patients/create.rs placeholder
+diff --git a/services/patient-service/src/http/handlers/patients/get.rs b/services/patient-service/src/http/handlers/patients/get.rs
+deleted file mode 100644
+index 236f87a..0000000
+--- a/services/patient-service/src/http/handlers/patients/get.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/handlers/patients/get.rs placeholder
+diff --git a/services/patient-service/src/http/handlers/patients/list.rs b/services/patient-service/src/http/handlers/patients/list.rs
+deleted file mode 100644
+index a970928..0000000
+--- a/services/patient-service/src/http/handlers/patients/list.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/handlers/patients/list.rs placeholder
+diff --git a/services/patient-service/src/http/handlers/patients/merge.rs b/services/patient-service/src/http/handlers/patients/merge.rs
+deleted file mode 100644
+index 364cce4..0000000
+--- a/services/patient-service/src/http/handlers/patients/merge.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/handlers/patients/merge.rs placeholder
+diff --git a/services/patient-service/src/http/handlers/patients/mod.rs b/services/patient-service/src/http/handlers/patients/mod.rs
+deleted file mode 100644
+index f3c8387..0000000
+--- a/services/patient-service/src/http/handlers/patients/mod.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/handlers/patients/mod.rs placeholder
+diff --git a/services/patient-service/src/http/handlers/patients/update.rs b/services/patient-service/src/http/handlers/patients/update.rs
+deleted file mode 100644
+index a4283c9..0000000
+--- a/services/patient-service/src/http/handlers/patients/update.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/handlers/patients/update.rs placeholder
+diff --git a/services/patient-service/src/http/middleware/auth.rs b/services/patient-service/src/http/middleware/auth.rs
+deleted file mode 100644
+index b92d2bc..0000000
+--- a/services/patient-service/src/http/middleware/auth.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/middleware/auth.rs placeholder
+diff --git a/services/patient-service/src/http/middleware/cache.rs b/services/patient-service/src/http/middleware/cache.rs
+deleted file mode 100644
+index 19a74b3..0000000
+--- a/services/patient-service/src/http/middleware/cache.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/middleware/cache.rs placeholder
+diff --git a/services/patient-service/src/http/middleware/mod.rs b/services/patient-service/src/http/middleware/mod.rs
+deleted file mode 100644
+index 1049579..0000000
+--- a/services/patient-service/src/http/middleware/mod.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/middleware/mod.rs placeholder
+diff --git a/services/patient-service/src/http/middleware/rate_limit.rs b/services/patient-service/src/http/middleware/rate_limit.rs
+deleted file mode 100644
+index 7654b3e..0000000
+--- a/services/patient-service/src/http/middleware/rate_limit.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/middleware/rate_limit.rs placeholder
+diff --git a/services/patient-service/src/http/middleware/request_id.rs b/services/patient-service/src/http/middleware/request_id.rs
+deleted file mode 100644
+index e6dde48..0000000
+--- a/services/patient-service/src/http/middleware/request_id.rs
++++ /dev/null
+@@ -1 +0,0 @@
+-// patient-service src/http/middleware/request_id.rs placeholder
+diff --git a/services/patient-service/src/http/mod.rs b/services/patient-service/src/http/mod.rs
+index afde9f1..6119af1 100644
+--- a/services/patient-service/src/http/mod.rs
++++ b/services/patient-service/src/http/mod.rs
+@@ -1 +1,41 @@
+-// http mod placeholder
++use actix_web::{web, HttpResponse};
++use utoipa::{OpenApi, Modify};
++use utoipa::openapi::security::{Http, HttpAuthScheme, SecurityScheme};
++
++use crate::dto::patient_dto::{CreatePatientReq, UpdatePatientReq, PatientRes};
++use crate::dto::encounter_dto::{CreateEncounterReq, UpdateEncounterReq, EncounterRes};
++
++pub mod handlers;
++pub mod routes;
++
++#[derive(OpenApi)]
++#[openapi(
++    paths(
++        crate::http::handlers::patients::list_patients,
++        crate::http::handlers::patients::create_patient,
++        crate::http::handlers::patients::get_patient,
++        crate::http::handlers::patients::update_patient,
++        crate::http::handlers::encounters::list_encounters,
++        crate::http::handlers::encounters::create_encounter,
++        crate::http::handlers::encounters::update_encounter,
++        crate::http::handlers::encounters::close_encounter,
++    ),
++    components(schemas(CreatePatientReq, UpdatePatientReq, PatientRes, CreateEncounterReq, UpdateEncounterReq, EncounterRes)),
++    modifiers(&SecurityAddon)
++)]
++pub struct ApiDoc;
++
++pub struct SecurityAddon;
++impl Modify for SecurityAddon {
++    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
++        openapi.components = Some(utoipa::openapi::ComponentsBuilder::new()
++            .security_scheme("bearer_auth", SecurityScheme::Http(Http::new(HttpAuthScheme::Bearer)))
++            .build());
++    }
++}
++
++pub fn mount(cfg: &mut web::ServiceConfig) {
++    cfg.service(utoipa_swagger_ui::SwaggerUi::new("/swagger").url("/api-docs/openapi.json", ApiDoc::openapi()))
++        .route("/api-docs/openapi.json", web::get().to(|| async { HttpResponse::Ok().json(ApiDoc::openapi()) }))
++        .service(crate::http::routes::api_scope());
++}
+diff --git a/services/patient-service/src/http/routes.rs b/services/patient-service/src/http/routes.rs
+index e195982..370369c 100644
+--- a/services/patient-service/src/http/routes.rs
++++ b/services/patient-service/src/http/routes.rs
+@@ -1 +1,38 @@
+-// routes placeholder
++use actix_web::{web, Scope};
++use crate::http::handlers;
++
++pub fn api_scope() -> Scope {
++    web::scope("")
++        .route("/healthz", web::get().to(handlers::health::healthz))
++        // Patients
++        .service(
++            web::resource("/api/v1/patients")
++                .route(web::get().to(handlers::patients::list_patients))
++        )
++        .service(
++            web::resource("/api/v1/patients:create")
++                .route(web::post().to(handlers::patients::create_patient))
++        )
++        .service(
++            web::resource("/api/v1/patients/{id}")
++                .route(web::get().to(handlers::patients::get_patient))
++                .route(web::put().to(handlers::patients::update_patient))
++        )
++        // Encounters
++        .service(
++            web::resource("/api/v1/encounters")
++                .route(web::get().to(handlers::encounters::list_encounters))
++        )
++        .service(
++            web::resource("/api/v1/encounters:create")
++                .route(web::post().to(handlers::encounters::create_encounter))
++        )
++        .service(
++            web::resource("/api/v1/encounters/{id}")
++                .route(web::put().to(handlers::encounters::update_encounter))
++        )
++        .service(
++            web::resource("/api/v1/encounters/{id}:close")
++                .route(web::put().to(handlers::encounters::close_encounter))
++        )
++}
+diff --git a/services/patient-service/src/infrastructure/db.rs b/services/patient-service/src/infrastructure/db.rs
+new file mode 100644
+index 0000000..e047dd9
+--- /dev/null
++++ b/services/patient-service/src/infrastructure/db.rs
+@@ -0,0 +1,11 @@
++use sqlx::{Pool, Postgres};
++
++pub type PgPool = Pool<Postgres>;
++
++pub async fn connect(db_url: &str) -> anyhow::Result<PgPool> {
++    let pool = sqlx::postgres::PgPoolOptions::new()
++        .max_connections(10)
++        .connect(db_url)
++        .await?;
++    Ok(pool)
++}
+diff --git a/services/patient-service/src/infrastructure/iam_client.rs b/services/patient-service/src/infrastructure/iam_client.rs
+new file mode 100644
+index 0000000..867d46d
+--- /dev/null
++++ b/services/patient-service/src/infrastructure/iam_client.rs
+@@ -0,0 +1,27 @@
++use crate::config::Settings;
++use crate::security::policy::{permission_catalog, PermissionDef};
++use anyhow::Context;
++
++#[derive(serde::Serialize)]
++struct RegisterRequest {
++    permissions: Vec<PermissionDef>
++}
++
++pub async fn register_permissions(cfg: &Settings) -> anyhow::Result<()> {
++    let base = cfg.iam_service_base_url.as_deref().context("IAM_SERVICE_BASE_URL missing")?;
++    let token = cfg.iam_service_token.as_deref().context("IAM_SERVICE_TOKEN missing")?;
++    let url = format!("{}/policies/register", base); // chỉnh theo contract
++    let body = RegisterRequest {
++        permissions: permission_catalog(&cfg.service_name)
++    };
++    let res = reqwest::Client::new()
++        .post(url)
++        .bearer_auth(token)
++        .json(&body)
++        .send()
++        .await?;
++    if !res.status().is_success() {
++        anyhow::bail!("register failed: {}", res.text().await.unwrap_or_default());
++    }
++    Ok(())
++}
+diff --git a/services/patient-service/src/infrastructure/kafka.rs b/services/patient-service/src/infrastructure/kafka.rs
+new file mode 100644
+index 0000000..eeea427
+--- /dev/null
++++ b/services/patient-service/src/infrastructure/kafka.rs
+@@ -0,0 +1,44 @@
++use serde::Serialize;
++
++#[cfg(feature = "kafka")]
++use rdkafka::{config::ClientConfig, producer::{FutureProducer, FutureRecord}};
++
++#[derive(Clone)]
++pub struct Kafka {
++    #[cfg(feature = "kafka")]
++    pub producer: FutureProducer,
++}
++
++impl Kafka {
++    pub fn new(_brokers: &str, _client_id: &str) -> anyhow::Result<Self> {
++        #[cfg(feature = "kafka")]
++        {
++            let producer = ClientConfig::new()
++                .set("bootstrap.servers", _brokers)
++                .set("client.id", _client_id)
++                .create()?;
++            Ok(Self { producer })
++        }
++        #[cfg(not(feature = "kafka"))]
++        {
++            anyhow::bail!("Kafka feature not enabled")
++        }
++    }
++
++    pub async fn publish<T: Serialize>(&self, topic: &str, _key: &str, _payload: &T) -> anyhow::Result<()> {
++        #[cfg(feature = "kafka")]
++        {
++            let bytes = serde_json::to_vec(_payload)?;
++            self.producer
++                .send(FutureRecord::to(topic).key(_key).payload(&bytes), std::time::Duration::from_secs(0))
++                .await
++                .map_err(|(e, _)| anyhow::anyhow!(e))?;
++            Ok(())
++        }
++        #[cfg(not(feature = "kafka"))]
++        {
++            tracing::warn!("Kafka not available, skipping publish to topic: {}", topic);
++            Ok(())
++        }
++    }
++}
+diff --git a/services/patient-service/src/infrastructure/mod.rs b/services/patient-service/src/infrastructure/mod.rs
+new file mode 100644
+index 0000000..6c6501c
+--- /dev/null
++++ b/services/patient-service/src/infrastructure/mod.rs
+@@ -0,0 +1,3 @@
++pub mod db;
++pub mod kafka;
++pub mod iam_client;
+diff --git a/services/patient-service/src/main.rs b/services/patient-service/src/main.rs
+index c158dd7..fba43d8 100644
+--- a/services/patient-service/src/main.rs
++++ b/services/patient-service/src/main.rs
+@@ -1 +1,62 @@
+-// patient-service main.rs placeholder
++mod config;
++mod telemetry;
++mod error;
++mod security;
++mod infrastructure;
++mod domain;
++mod dto;
++mod http;
++
++use actix_cors::Cors;
++use actix_governor::{Governor, GovernorConfigBuilder};
++use actix_web::{App, HttpServer, middleware::Logger, web};
++use infrastructure::{db, iam_client};
++use app_web::prelude::{AuthMiddleware, AuthConfig};
++use app_auth::keycloak::KeycloakValidator;
++
++#[actix_web::main]
++async fn main() -> std::io::Result<()> {
++    let cfg = config::Settings::load();
++    telemetry::init_tracing(&cfg);
++
++    let pool = db::connect(&cfg.database_url).await.expect("db");
++    // Kafka disabled for now due to CMake requirement
++    // let kafka = if let (Some(b), Some(id)) = (cfg.kafka_brokers.clone(), cfg.kafka_client_id.clone()) {
++    //     Some(Kafka::new(&b, &id).expect("kafka"))
++    // } else {
++    //     None
++    // };
++
++    if cfg.iam_service_base_url.is_some() {
++        if let Err(e) = iam_client::register_permissions(&cfg).await {
++            tracing::warn!(?e, "register perm failed");
++        } else {
++            tracing::info!("permissions registered");
++        }
++    }
++
++    let port = cfg.service_port;
++    let host = format!("0.0.0.0:{}", port);
++
++    HttpServer::new(move || {
++        let cors = Cors::permissive();
++        let governor_conf = GovernorConfigBuilder::default().finish().unwrap();
++        let auth_middleware = AuthMiddleware::new(KeycloakValidator::from_security_config(&cfg.security), AuthConfig {
++            optional: false,
++            required_scopes: vec![],
++            any_role: vec![],
++        });
++        App::new()
++            .wrap(Logger::default())
++            .wrap(cors)
++            .wrap(Governor::new(&governor_conf))
++            .wrap(auth_middleware)
++            .app_data(web::Data::new(pool.clone()))
++            // .app_data(web::Data::new(kafka.clone()))  // Kafka disabled
++            .configure(http::mount)
++    })
++    .workers(2)
++    .bind(host)?
++    .run()
++    .await
++}
+diff --git a/services/patient-service/src/security/mod.rs b/services/patient-service/src/security/mod.rs
+new file mode 100644
+index 0000000..1e6e661
+--- /dev/null
++++ b/services/patient-service/src/security/mod.rs
+@@ -0,0 +1,2 @@
++pub mod permission;
++pub mod policy;
+diff --git a/services/patient-service/src/security/permission.rs b/services/patient-service/src/security/permission.rs
+new file mode 100644
+index 0000000..b664f98
+--- /dev/null
++++ b/services/patient-service/src/security/permission.rs
+@@ -0,0 +1,72 @@
++use actix_web::{dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform}, Error as ActixError, HttpMessage};
++use futures_util::future::LocalBoxFuture;
++use std::rc::Rc;
++
++pub struct RequirePermission {
++    perm: &'static str
++}
++
++impl RequirePermission {
++    pub fn new(perm: &'static str) -> Self {
++        Self { perm }
++    }
++}
++
++#[derive(Clone, Debug)]
++pub struct UserClaims {
++    pub sub: String,
++    pub roles: Vec<String>,
++    pub permissions: Vec<String>
++}
++
++impl<S, B> Transform<S, ServiceRequest> for RequirePermission
++where
++    S: Service<ServiceRequest, Response=ServiceResponse<B>, Error=ActixError> + 'static,
++    S::Future: 'static
++{
++    type Response = ServiceResponse<B>;
++    type Error = ActixError;
++    type Transform = RequirePermissionMw<S>;
++    type InitError = ();
++    type Future = std::future::Ready<Result<Self::Transform, Self::InitError>>;
++
++    fn new_transform(&self, service: S) -> Self::Future {
++        std::future::ready(Ok(RequirePermissionMw {
++            service: Rc::new(service),
++            perm: self.perm
++        }))
++    }
++}
++
++pub struct RequirePermissionMw<S> {
++    service: Rc<S>,
++    perm: &'static str
++}
++
++impl<S, B> Service<ServiceRequest> for RequirePermissionMw<S>
++where
++    S: Service<ServiceRequest, Response=ServiceResponse<B>, Error=ActixError> + 'static,
++    S::Future: 'static
++{
++    type Response = ServiceResponse<B>;
++    type Error = ActixError;
++    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
++
++    forward_ready!(service);
++
++    fn call(&self, req: ServiceRequest) -> Self::Future {
++        let svc = self.service.clone();
++        let perm = self.perm;
++        Box::pin(async move {
++            let allowed = if let Some(c) = req.extensions().get::<UserClaims>() {
++                c.permissions.iter().any(|p| p == perm) || c.roles.iter().any(|r| r == "ROLE_PATIENT_ADMIN")
++            } else {
++                false
++            };
++            if !allowed {
++                return Err(crate::error::AppError::Forbidden.into());
++            }
++            svc.call(req).await
++        })
++    }
++}
+diff --git a/services/patient-service/src/security/policy.rs b/services/patient-service/src/security/policy.rs
+new file mode 100644
+index 0000000..21bb7f8
+--- /dev/null
++++ b/services/patient-service/src/security/policy.rs
+@@ -0,0 +1,39 @@
++pub mod perm {
++    // Patient
++    pub const PATIENT_LIST: &str   = "his.patient.list";
++    pub const PATIENT_READ: &str   = "his.patient.read";
++    pub const PATIENT_CREATE: &str = "his.patient.create";
++    pub const PATIENT_UPDATE: &str = "his.patient.update";
++    pub const PATIENT_DELETE: &str = "his.patient.delete";
++    // Encounter
++    pub const ENCOUNTER_LIST: &str   = "his.encounter.list";
++    pub const ENCOUNTER_READ: &str   = "his.encounter.read";
++    pub const ENCOUNTER_CREATE: &str = "his.encounter.create";
++    pub const ENCOUNTER_UPDATE: &str = "his.encounter.update";
++    pub const ENCOUNTER_CLOSE: &str  = "his.encounter.close"; // discharge
++}
++
++#[derive(serde::Serialize)]
++pub struct PermissionDef {
++    pub name: String,
++    pub description: String,
++    pub service: String
++}
++
++pub fn permission_catalog(service: &str) -> Vec<PermissionDef> {
++    use perm::*;
++    vec![
++        // patient
++        PermissionDef { name: PATIENT_LIST.into(),   description: "List patients".into(),   service: service.into() },
++        PermissionDef { name: PATIENT_READ.into(),   description: "Read patient".into(),   service: service.into() },
++        PermissionDef { name: PATIENT_CREATE.into(), description: "Create patient".into(), service: service.into() },
++        PermissionDef { name: PATIENT_UPDATE.into(), description: "Update patient".into(), service: service.into() },
++        PermissionDef { name: PATIENT_DELETE.into(), description: "Delete patient".into(), service: service.into() },
++        // encounter
++        PermissionDef { name: ENCOUNTER_LIST.into(),   description: "List encounters".into(), service: service.into() },
++        PermissionDef { name: ENCOUNTER_READ.into(),   description: "Read encounter".into(), service: service.into() },
++        PermissionDef { name: ENCOUNTER_CREATE.into(), description: "Create encounter".into(), service: service.into() },
++        PermissionDef { name: ENCOUNTER_UPDATE.into(), description: "Update encounter".into(), service: service.into() },
++        PermissionDef { name: ENCOUNTER_CLOSE.into(),  description: "Close encounter".into(),  service: service.into() },
++    ]
++}
+diff --git a/services/patient-service/src/telemetry.rs b/services/patient-service/src/telemetry.rs
+index 7b109d9..a9a9aa2 100644
+--- a/services/patient-service/src/telemetry.rs
++++ b/services/patient-service/src/telemetry.rs
+@@ -1 +1,10 @@
+-// patient-service telemetry.rs placeholder
++use crate::config::Settings;
++use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
++
++pub fn init_tracing(_cfg: &Settings) {
++    let filter = std::env::var("RUST_LOG").unwrap_or_else(|_| "info,actix_web=info".into());
++    tracing_subscriber::registry()
++        .with(tracing_subscriber::EnvFilter::new(filter))
++        .with(tracing_subscriber::fmt::layer())
++        .init();
++}
+-- 
+2.42.0.windows.2
+
