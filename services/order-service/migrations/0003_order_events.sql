@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS order_events (
+  id UUID PRIMARY KEY,
+  order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  event_type VARCHAR(32) NOT NULL,       -- CREATED/APPROVED/STARTED/COMPLETED/CANCELLED
+  payload JSONB,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_order_events_order ON order_events(order_id);

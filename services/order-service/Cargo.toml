@@ -1,0 +1,36 @@
+[package]
+name = "order-service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web = "4"
+actix-cors = "0.7"
+actix-governor = "0.5"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_with = "3"
+config = "0.14"
+dotenvy = "0.15"
+thiserror = "1"
+anyhow = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+validator = { version = "0.18", features = ["derive"] }
+actix-web-validator = "4"
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+utoipa = { version = "4", features = ["actix_extras", "chrono", "uuid"] }
+utoipa-swagger-ui = { version = "7", features = ["actix-web"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+sha2 = "0.10"
+
+# Workspace crates
+app-auth = { path = "../../crates/app-auth" }
+app-web = { path = "../../crates/app-web" }
+app-error = { path = "../../crates/app-error", features = ["sqlx"] }
+app-telemetry = { path = "../../crates/app-telemetry", features = ["actix"] }
+app-core = { path = "../../crates/app-core", features = ["sqlx"] }
+app-config = { path = "../../crates/app-config" }
