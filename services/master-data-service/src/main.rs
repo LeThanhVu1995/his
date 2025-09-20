@@ -11,9 +11,8 @@ use actix_cors::Cors;
 use actix_governor::{Governor, GovernorConfigBuilder};
 use actix_web::{App, HttpServer, middleware::Logger, web};
 use infrastructure::{db, kafka::Kafka, iam_client};
-// Temporarily disable real auth until dependencies are available
-// use app_auth::KeycloakValidator;
-// use app_web::prelude::{AuthMiddleware, AuthConfig};
+use app_web::prelude::{AuthMiddleware, AuthConfig};
+use app_auth::keycloak::KeycloakValidator;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -43,28 +42,23 @@ async fn main() -> std::io::Result<()> {
         }
     } else { None };
 
-    // Auth validator - temporarily disabled
-    // let auth_config = app_config::SecurityConfig {
-    //     issuer: cfg.keycloak_issuer.unwrap_or_else(|| "http://localhost:8080/realms/his".into()),
-    //     audience: cfg.auth_audience,
-    //     jwks_ttl: Some("10m".into()),
-    //     realm: "his".into(),
-    // };
-    // let validator = KeycloakValidator::from_security_config(&auth_config);
-
     let port = cfg.service_port;
     let host = format!("0.0.0.0:{}", port);
 
     HttpServer::new(move || {
         let cors = Cors::permissive();
         let governor_conf = GovernorConfigBuilder::default().finish().unwrap();
+        let auth_middleware = AuthMiddleware::new(KeycloakValidator::from_security_config(&cfg.security), AuthConfig {
+            optional: false,
+            required_scopes: vec![],
+            any_role: vec![],
+        });
 
         App::new()
             .wrap(Logger::default())
             .wrap(cors)
             .wrap(Governor::new(&governor_conf))
-            // Demo auth middleware (temporarily)
-            .wrap(crate::http::middleware::DemoAuth)
+            .wrap(auth_middleware)
             // app data
             .app_data(web::Data::new(pool.clone()))
             .app_data(web::Data::new(kafka.clone()))

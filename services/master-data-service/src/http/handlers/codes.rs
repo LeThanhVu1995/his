@@ -2,6 +2,7 @@ use actix_web::{web, HttpResponse};
 use uuid::Uuid;
 use actix_web_validator::{Query, Json};
 use actix_web::web::Path;
+use app_web::extractors::auth_user::AuthUser;
 
 use crate::{domain::{repo::MasterRepo, service::MasterService}, dto::{code_dto::{CreateCodeReq, UpdateCodeReq, CodeRes, ListCodesQuery, calc_etag, BulkCreateCodeReq, BulkUpdateCodeReq, BulkCreateCodeRes, BulkError}}, infrastructure::kafka::Kafka};
 
@@ -18,7 +19,8 @@ use crate::{domain::{repo::MasterRepo, service::MasterService}, dto::{code_dto::
 pub async fn list_codes(
     req: actix_web::HttpRequest,
     db: web::Data<sqlx::Pool<sqlx::Postgres>>,
-    q: Query<ListCodesQuery>
+    q: Query<ListCodesQuery>,
+    _user: AuthUser
 ) -> actix_web::Result<HttpResponse> {
     let page = q.page.unwrap_or(1);
     let size = q.page_size.unwrap_or(50);

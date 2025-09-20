@@ -39,17 +39,16 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 sha2 = "0.10"
 # Futures support
 futures-util = "0.3"
-# Local workspace crates (nếu có)
-app-auth = { path = "../../crates/app-auth", optional = true }
-app-error = { path = "../../crates/app-error", optional = true }
-app-telemetry = { path = "../../crates/app-telemetry", optional = true }
-app-web = { path = "../../crates/app-web", optional = true }
-app-kafka = { path = "../../crates/app-kafka", optional = true }
-app-config = { path = "../../crates/app-config", optional = true }
+# Local workspace crates
+app-auth = { path = "../../crates/app-auth" }
+app-error = { path = "../../crates/app-error" }
+app-telemetry = { path = "../../crates/app-telemetry" }
+app-web = { path = "../../crates/app-web" }
+# app-kafka = { path = "../../crates/app-kafka" }  # Disabled due to CMake requirement
+app-config = { path = "../../crates/app-config" }
 
 [features]
 default = []
-use-workspace-crates = ["app-auth", "app-error", "app-telemetry", "app-web", "app-kafka", "app-config"]
 kafka = ["rdkafka"]
 
 [profile.release]

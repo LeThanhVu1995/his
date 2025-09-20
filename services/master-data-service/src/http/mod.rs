@@ -46,5 +46,4 @@ pub fn mount(cfg: &mut web::ServiceConfig) {
 
 pub mod handlers;
 pub mod routes;
-pub mod middleware;
 
