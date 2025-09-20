@@ -1,4 +1,58 @@
 [package]
-name="master-data-service"
-version="0.0.0"
-edition="2021"
+name = "master-data-service"
+version = "0.1.0"
+authors = ["HIS Team"]
+edition = "2021"
+
+[dependencies]
+actix-web = "4"
+actix-cors = "0.7"
+actix-governor = "0.5" # rate limiting
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_with = "3"
+config = "0.14"
+dotenvy = "0.15"
+thiserror = "1"
+anyhow = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+validator = { version = "0.15", features = ["derive"] }
+actix-web-validator = "4"
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+# Kafka (optional):
+rdkafka = { version = "0.36", features = ["cmake-build"], optional = true }
+# HTTP client for IAM sync
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+# JWT (nếu cần tự verify hoặc bóc claim tùy chỉnh)
+jsonwebtoken = "9"
+# OpenAPI
+utoipa = { version = "4", features = ["actix_extras", "chrono", "uuid"] }
+utoipa-swagger-ui = { version = "7", features = ["actix-web"] }
+utoipa-rapidoc = { version = "5", features = ["actix-web"] }
+# Observability
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+# ETag support
+sha2 = "0.10"
+# Futures support
+futures-util = "0.3"
+# Local workspace crates (nếu có)
+app-auth = { path = "../../crates/app-auth", optional = true }
+app-error = { path = "../../crates/app-error", optional = true }
+app-telemetry = { path = "../../crates/app-telemetry", optional = true }
+app-web = { path = "../../crates/app-web", optional = true }
+app-kafka = { path = "../../crates/app-kafka", optional = true }
+app-config = { path = "../../crates/app-config", optional = true }
+
+[features]
+default = []
+use-workspace-crates = ["app-auth", "app-error", "app-telemetry", "app-web", "app-kafka", "app-config"]
+kafka = ["rdkafka"]
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "z"
