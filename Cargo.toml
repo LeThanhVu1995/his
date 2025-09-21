@@ -1,9 +1,11 @@
-[package]
-name = "pharmacy-service"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = [
+    "services/*",
+    "crates/*"
+]
+resolver = "2"
 
-[dependencies]
+[workspace.dependencies]
 actix-web = "4"
 actix-web-validator = "5"
 actix-cors = "0.7"
@@ -27,11 +29,5 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 sha2 = "0.10"
 rust_decimal = { version = "1", features = ["serde"] }
+futures-util = "0.3"
 
-# Workspace crates
-app-auth = { path = "../../crates/app-auth" }
-app-web = { path = "../../crates/app-web" }
-app-config = { path = "../../crates/app-config" }
-app-error = { path = "../../crates/app-error", features = ["sqlx"] }
-app-telemetry = { path = "../../crates/app-telemetry", features = ["actix"] }
-app-core = { path = "../../crates/app-core", features = ["sqlx"] }

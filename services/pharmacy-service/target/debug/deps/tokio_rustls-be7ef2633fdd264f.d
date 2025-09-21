@@ -1,0 +1,9 @@
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\libtokio_rustls-be7ef2633fdd264f.rmeta: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\client.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\common\mod.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\common\handshake.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\server.rs
+
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\tokio_rustls-be7ef2633fdd264f.d: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\client.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\common\mod.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\common\handshake.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\server.rs
+
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\lib.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\client.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\common\mod.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\common\handshake.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tokio-rustls-0.26.3\src\server.rs:

@@ -1,0 +1,7 @@
+OUT_DIR: C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\build\utoipa-swagger-ui-dedf5eb63d6dd9a8\out
+SWAGGER_UI_DOWNLOAD_URL: https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.17.12.zip
+start download to : "C:\\Users\\vu.le\\Downloads\\his-monorepo-skeleton-all-v2\\services\\pharmacy-service\\target\\debug\\build\\utoipa-swagger-ui-dedf5eb63d6dd9a8\\out\\v5.17.12.zip"
+cargo:rerun-if-env-changed=SWAGGER_UI_DOWNLOAD_URL
+reqwest feature: Err(NotPresent)
+zip_top_level_folder: "swagger-ui-5.17.12"
+SWAGGER_UI_OVERWRITE_FOLDER not found: "overwrite"

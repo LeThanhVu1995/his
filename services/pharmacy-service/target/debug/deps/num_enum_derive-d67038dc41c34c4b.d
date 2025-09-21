@@ -1,0 +1,9 @@
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\num_enum_derive-d67038dc41c34c4b.dll: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\enum_attributes.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\parsing.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\utils.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\variant_attributes.rs
+
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\num_enum_derive-d67038dc41c34c4b.d: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\enum_attributes.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\parsing.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\utils.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\variant_attributes.rs
+
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\lib.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\enum_attributes.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\parsing.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\utils.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\num_enum_derive-0.7.4\src\variant_attributes.rs:

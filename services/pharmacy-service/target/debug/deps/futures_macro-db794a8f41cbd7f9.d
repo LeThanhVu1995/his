@@ -1,0 +1,9 @@
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\futures_macro-db794a8f41cbd7f9.dll: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\executor.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\join.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\select.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\stream_select.rs
+
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\futures_macro-db794a8f41cbd7f9.d: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\executor.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\join.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\select.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\stream_select.rs
+
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\lib.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\executor.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\join.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\select.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\futures-macro-0.3.31\src\stream_select.rs:

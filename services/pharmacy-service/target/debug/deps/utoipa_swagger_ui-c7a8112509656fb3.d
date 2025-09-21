@@ -1,0 +1,12 @@
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\libutoipa_swagger_ui-c7a8112509656fb3.rmeta: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\actix.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\axum.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\oauth.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\rocket.rs C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\build\utoipa-swagger-ui-dedf5eb63d6dd9a8\out/embed.rs
+
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\utoipa_swagger_ui-c7a8112509656fb3.d: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\actix.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\axum.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\oauth.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\rocket.rs C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\build\utoipa-swagger-ui-dedf5eb63d6dd9a8\out/embed.rs
+
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\lib.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\actix.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\axum.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\oauth.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\utoipa-swagger-ui-7.1.0\src\rocket.rs:
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\build\utoipa-swagger-ui-dedf5eb63d6dd9a8\out/embed.rs:
+
+# env-dep:OUT_DIR=C:\\Users\\vu.le\\Downloads\\his-monorepo-skeleton-all-v2\\services\\pharmacy-service\\target\\debug\\build\\utoipa-swagger-ui-dedf5eb63d6dd9a8\\out

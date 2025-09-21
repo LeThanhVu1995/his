@@ -1,1 +1,3 @@
-// inventory-service main.rs placeholder
+fn main() {
+    println!("Inventory service placeholder");
+}

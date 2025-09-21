@@ -1,0 +1,12 @@
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\libserde-5fe120e486064a32.rmeta: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\integer128.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\private\mod.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\private\de.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\private\ser.rs C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\build\serde-f2dbc20d035c1bd6\out/private.rs
+
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\serde-5fe120e486064a32.d: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\integer128.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\private\mod.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\private\de.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\private\ser.rs C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\build\serde-f2dbc20d035c1bd6\out/private.rs
+
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\lib.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\integer128.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\private\mod.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\private\de.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.225\src\private\ser.rs:
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\build\serde-f2dbc20d035c1bd6\out/private.rs:
+
+# env-dep:OUT_DIR=C:\\Users\\vu.le\\Downloads\\his-monorepo-skeleton-all-v2\\services\\pharmacy-service\\target\\debug\\build\\serde-f2dbc20d035c1bd6\\out

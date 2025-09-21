@@ -1,0 +1,9 @@
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\libderive_more-93742ad4a7a14aab.rmeta: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\as.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\vendor\mod.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\vendor\thiserror\mod.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\vendor\thiserror\aserror.rs
+
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\derive_more-93742ad4a7a14aab.d: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\as.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\vendor\mod.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\vendor\thiserror\mod.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\vendor\thiserror\aserror.rs
+
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\lib.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\as.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\vendor\mod.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\vendor\thiserror\mod.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\derive_more-2.0.1\src\vendor\thiserror\aserror.rs:

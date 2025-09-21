@@ -1,1 +1,0 @@
--- inventory-service 20250914_000004_po_grn.sql placeholder

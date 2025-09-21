@@ -1,0 +1,11 @@
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\libcookie-83c430ba16d7216b.rmeta: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\builder.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\parse.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\jar.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\delta.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\draft.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\expiration.rs
+
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\cookie-83c430ba16d7216b.d: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\builder.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\parse.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\jar.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\delta.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\draft.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\expiration.rs
+
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\lib.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\builder.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\parse.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\jar.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\delta.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\draft.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cookie-0.16.2\src\expiration.rs:

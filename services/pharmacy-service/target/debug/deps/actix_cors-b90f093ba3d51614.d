@@ -1,0 +1,10 @@
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\libactix_cors-b90f093ba3d51614.rmeta: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\all_or_some.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\builder.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\error.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\inner.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\middleware.rs
+
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\actix_cors-b90f093ba3d51614.d: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\all_or_some.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\builder.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\error.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\inner.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\middleware.rs
+
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\lib.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\all_or_some.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\builder.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\error.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\inner.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\actix-cors-0.7.1\src\middleware.rs:

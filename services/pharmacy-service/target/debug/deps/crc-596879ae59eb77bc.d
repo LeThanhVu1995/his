@@ -1,0 +1,12 @@
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\libcrc-596879ae59eb77bc.rmeta: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc128.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc16.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc32.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc64.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc8.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\table.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\util.rs
+
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\crc-596879ae59eb77bc.d: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc128.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc16.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc32.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc64.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc8.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\table.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\util.rs
+
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\lib.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc128.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc16.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc32.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc64.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\crc8.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\table.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\crc-3.3.0\src\util.rs:

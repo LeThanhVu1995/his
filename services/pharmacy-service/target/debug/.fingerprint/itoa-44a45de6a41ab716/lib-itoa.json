@@ -1,0 +1,1 @@
+{"rustc":10895048813736897673,"features":"[]","declared_features":"[\"no-panic\"]","target":8239509073162986830,"profile":2241668132362809309,"path":3183482166401289014,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"debug\\.fingerprint\\itoa-44a45de6a41ab716\\dep-lib-itoa","checksum":false}}],"rustflags":["-C","target-cpu=native"],"config":2069994364910194474,"compile_kind":0}

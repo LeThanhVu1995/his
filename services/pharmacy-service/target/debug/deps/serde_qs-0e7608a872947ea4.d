@@ -1,0 +1,11 @@
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\libserde_qs-0e7608a872947ea4.rmeta: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\actix.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\de\mod.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\de\parse.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\error.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\ser.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\utils.rs
+
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\serde_qs-0e7608a872947ea4.d: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\actix.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\de\mod.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\de\parse.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\error.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\ser.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\utils.rs
+
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\lib.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\actix.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\de\mod.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\de\parse.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\error.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\ser.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde_qs-0.10.1\src\utils.rs:

@@ -1,0 +1,11 @@
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\liburl-7a687dfb63f5a5e9.rmeta: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\host.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\origin.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\parser.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\path_segments.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\slicing.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\quirks.rs
+
+C:\Users\vu.le\Downloads\his-monorepo-skeleton-all-v2\services\pharmacy-service\target\debug\deps\url-7a687dfb63f5a5e9.d: C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\lib.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\host.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\origin.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\parser.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\path_segments.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\slicing.rs C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\quirks.rs
+
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\lib.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\host.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\origin.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\parser.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\path_segments.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\slicing.rs:
+C:\Users\vu.le\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\url-2.5.7\src\quirks.rs:
