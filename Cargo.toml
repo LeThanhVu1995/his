@@ -5,6 +5,10 @@ members = [
 ]
 resolver = "2"
 
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
 [workspace.dependencies]
 actix-web = "4"
 actix-web-validator = "5"
@@ -19,7 +23,7 @@ thiserror = "1"
 anyhow = "1"
 uuid = { version = "1", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
-validator = { version = "0.18", features = ["derive"] }
+validator = { version = "0.16", features = ["derive"] }
 sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
@@ -30,4 +34,12 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 sha2 = "0.10"
 rust_decimal = { version = "1", features = ["serde"] }
 futures-util = "0.3"
+
+# Workspace crates
+app-auth = { path = "crates/app-auth" }
+app-web = { path = "crates/app-web" }
+app-core = { path = "crates/app-core" }
+app-error = { path = "crates/app-error" }
+app-telemetry = { path = "crates/app-telemetry" }
+app-config = { path = "crates/app-config" }
 

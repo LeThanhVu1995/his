@@ -1,1 +1,11 @@
--- notify-service 20250914_000001_templates.sql placeholder
+CREATE TABLE IF NOT EXISTS notify_templates (
+  id UUID PRIMARY KEY,
+  code VARCHAR(64) UNIQUE NOT NULL,
+  name VARCHAR(128) NOT NULL,
+  channel VARCHAR(16) NOT NULL, -- EMAIL/SMS/PUSH/INAPP
+  subject TEXT,
+  body TEXT NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

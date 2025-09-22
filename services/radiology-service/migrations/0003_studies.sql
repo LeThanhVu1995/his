@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS rad_studies (
+  id UUID PRIMARY KEY,
+  study_uid UUID NOT NULL,                -- mock DICOM UID (sử dụng UUID)
+  order_id UUID NOT NULL REFERENCES rad_orders(id) ON DELETE CASCADE,
+  accession_no VARCHAR(64) UNIQUE NOT NULL,
+  modality VARCHAR(16) NOT NULL,
+  started_at TIMESTAMPTZ,
+  ended_at TIMESTAMPTZ,
+  performer VARCHAR(64),
+  status VARCHAR(16) NOT NULL DEFAULT 'CREATED', -- CREATED/INPROGRESS/DONE
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

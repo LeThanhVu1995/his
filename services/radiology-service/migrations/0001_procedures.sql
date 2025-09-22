@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS rad_procedures (
+  id UUID PRIMARY KEY,
+  code VARCHAR(64) UNIQUE NOT NULL,   -- CTABD, XCHEST, USOB...
+  name VARCHAR(255) NOT NULL,
+  modality VARCHAR(16) NOT NULL,      -- CR/DR, CT, MR, US, DXA...
+  body_part VARCHAR(64),
+  contrast BOOLEAN NOT NULL DEFAULT FALSE,
+  duration_min INT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

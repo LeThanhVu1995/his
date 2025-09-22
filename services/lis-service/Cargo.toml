@@ -1,4 +1,64 @@
 [package]
-name="lis-service"
-version="0.0.0"
-edition="2021"
+name = "lis-service"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+# Web framework
+actix-web.workspace = true
+actix-cors.workspace = true
+actix-governor.workspace = true
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+serde_with.workspace = true
+
+# Configuration
+config.workspace = true
+dotenvy.workspace = true
+
+# Error handling
+thiserror.workspace = true
+anyhow.workspace = true
+
+# UUID and time
+uuid.workspace = true
+chrono.workspace = true
+
+# Validation
+validator.workspace = true
+
+# Database
+sqlx.workspace = true
+
+# Async runtime
+tokio.workspace = true
+
+# HTTP client
+reqwest.workspace = true
+
+# OpenAPI
+utoipa.workspace = true
+utoipa-swagger-ui.workspace = true
+
+# Logging
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+# Crypto
+sha2.workspace = true
+
+# Decimal
+rust_decimal.workspace = true
+
+# Futures
+futures-util.workspace = true
+
+# Workspace crates
+app-auth.workspace = true
+app-web.workspace = true
+app-core.workspace = true
+app-error.workspace = true
+app-telemetry.workspace = true
+app-config.workspace = true

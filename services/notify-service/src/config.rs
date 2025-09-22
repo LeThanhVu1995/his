@@ -1,0 +1,40 @@
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct Settings {
+    pub service_name: String,
+    pub service_port: u16,
+    pub database_url: String,
+    // Security
+    pub security: app_config::SecurityConfig,
+    // IAM
+    pub iam_service_base_url: Option<String>,
+    pub iam_service_token: Option<String>,
+    // Email
+    pub smtp_host: Option<String>,
+    pub smtp_port: Option<u16>,
+    pub smtp_user: Option<String>,
+    pub smtp_pass: Option<String>,
+    pub smtp_from: Option<String>,
+    // SMS
+    pub sms_api_base: Option<String>,
+    pub sms_api_token: Option<String>,
+    // Push
+    pub push_api_base: Option<String>,
+    pub push_api_token: Option<String>,
+    // Kafka
+    pub kafka_brokers: Option<String>,
+    pub kafka_client_id: Option<String>,
+}
+
+impl Settings {
+    pub fn load() -> Self {
+        dotenvy::dotenv().ok();
+        config::Config::builder()
+            .add_source(config::Environment::default().separator("_"))
+            .build()
+            .unwrap()
+            .try_deserialize()
+            .unwrap()
+    }
+}

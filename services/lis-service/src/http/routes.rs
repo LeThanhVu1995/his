@@ -1,1 +1,51 @@
-// routes placeholder
+use actix_web::{web, Scope};
+use crate::http::handlers;
+use crate::security::permission::RequirePermission;
+use crate::security::policy::perm;
+
+pub fn api_scope() -> Scope {
+    web::scope("")
+        .route("/healthz", web::get().to(handlers::health::healthz))
+        // Catalog tests
+        .service(web::resource("/api/v1/lab/tests")
+            .wrap(RequirePermission::new(perm::TEST_LIST))
+            .route(web::get().to(handlers::tests::list_tests)))
+        .service(web::resource("/api/v1/lab/tests:create")
+            .wrap(RequirePermission::new(perm::TEST_CREATE))
+            .route(web::post().to(handlers::tests::create_test)))
+        .service(web::resource("/api/v1/lab/tests/{id}")
+            .wrap(RequirePermission::new(perm::TEST_UPDATE))
+            .route(web::put().to(handlers::tests::update_test)))
+        // Specimens
+        .service(web::resource("/api/v1/lab/specimens")
+            .wrap(RequirePermission::new(perm::SPECIMEN_LIST))
+            .route(web::get().to(handlers::specimens::list_specimens)))
+        .service(web::resource("/api/v1/lab/specimens:create")
+            .wrap(RequirePermission::new(perm::SPECIMEN_CREATE))
+            .route(web::post().to(handlers::specimens::create_specimen)))
+        .service(web::resource("/api/v1/lab/specimens/{id}:collect")
+            .wrap(RequirePermission::new(perm::SPECIMEN_COLLECT))
+            .route(web::put().to(handlers::specimens::collect_specimen)))
+        .service(web::resource("/api/v1/lab/specimens/{id}:receive")
+            .wrap(RequirePermission::new(perm::SPECIMEN_RECEIVE))
+            .route(web::put().to(handlers::specimens::receive_specimen)))
+        .service(web::resource("/api/v1/lab/specimens/{id}:reject")
+            .wrap(RequirePermission::new(perm::SPECIMEN_REJECT))
+            .route(web::put().to(handlers::specimens::reject_specimen)))
+        // Results
+        .service(web::resource("/api/v1/lab/results")
+            .wrap(RequirePermission::new(perm::RESULT_LIST))
+            .route(web::get().to(handlers::results::list_results)))
+        .service(web::resource("/api/v1/lab/results:create")
+            .wrap(RequirePermission::new(perm::RESULT_CREATE))
+            .route(web::post().to(handlers::results::create_result)))
+        .service(web::resource("/api/v1/lab/results/{id}:enter")
+            .wrap(RequirePermission::new(perm::RESULT_ENTER))
+            .route(web::post().to(handlers::results::enter_values)))
+        .service(web::resource("/api/v1/lab/results/{id}:verify")
+            .wrap(RequirePermission::new(perm::RESULT_VERIFY))
+            .route(web::put().to(handlers::results::verify_result)))
+        .service(web::resource("/api/v1/lab/results/{id}:release")
+            .wrap(RequirePermission::new(perm::RESULT_RELEASE))
+            .route(web::put().to(handlers::results::release_result)))
+}
