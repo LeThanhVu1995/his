@@ -1,1 +1,8 @@
-// or-cssd-service src/infra/db/repositories/or_repo.rs placeholder
+use uuid::Uuid; use sqlx::{Pool,Postgres}; use crate::domain::entities::or_schedule::{OrRoom,OrSchedule};
+pub struct OrRepo<'a>{ pub db:&'a Pool<Postgres> }
+impl<'a> OrRepo<'a>{
+  pub async fn upsert_room(&self, code:&str, name:&str, location:Option<&str>)->anyhow::Result<OrRoom>{ let r=sqlx::query_as::<_,OrRoom>(r#"INSERT INTO or_rooms(id,code,name,location) VALUES($1,$2,$3,$4) ON CONFLICT(code) DO UPDATE SET name=EXCLUDED.name, location=EXCLUDED.location RETURNING id,code,name,location"#).bind(uuid::Uuid::new_v4()).bind(code).bind(name).bind(location).fetch_one(self.db).await?; Ok(r) }
+  pub async fn create_schedule(&self, s:&OrSchedule)->anyhow::Result<()> { sqlx::query("INSERT INTO or_schedules(id,room_id,patient_id,encounter_id,procedure_code,start_time,end_time,surgeon_id,anesthetist_id,notes,status) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)").bind(s.id).bind(s.room_id).bind(s.patient_id).bind(s.encounter_id).bind(&s.procedure_code).bind(s.start_time).bind(s.end_time).bind(s.surgeon_id).bind(s.anesthetist_id).bind(&s.notes).bind(&s.status).execute(self.db).await?; Ok(()) }
+  pub async fn list_by_room_time(&self, room:Uuid, from:chrono::DateTime<chrono::Utc>, to:chrono::DateTime<chrono::Utc>)->anyhow::Result<Vec<OrSchedule>>{ Ok(sqlx::query_as::<_,OrSchedule>(r#"SELECT id,room_id,patient_id,encounter_id,procedure_code,start_time,end_time,surgeon_id,anesthetist_id,notes,status,created_at,updated_at FROM or_schedules WHERE room_id=$1 AND start_time >= $2 AND end_time <= $3 ORDER BY start_time"#).bind(room).bind(from).bind(to).fetch_all(self.db).await?) }
+  pub async fn update_schedule_status(&self, id:Uuid, status:&str)->anyhow::Result<()> { sqlx::query("UPDATE or_schedules SET status=$2, updated_at=NOW() WHERE id=$1").bind(id).bind(status).execute(self.db).await?; Ok(()) }
+}

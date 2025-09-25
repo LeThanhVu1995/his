@@ -1,1 +1,2 @@
-// dms-service src/http/handlers/download.rs placeholder
+use actix_web::{post, web, HttpResponse};
+#[post("/api/v1/dms/objects:presign-download")] pub async fn presign_download(_user: app_web::extractors::auth_user::AuthUser, db:web::Data<sqlx::Pool<sqlx::Postgres>>, body:web::Json<crate::http::dto::object_dto::GetUrlReq>) -> actix_web::Result<HttpResponse>{ let s3=crate::infra::storage::minio::S3::from_env().await.map_err(|_|actix_web::error::ErrorInternalServerError("s3"))?; let url=s3.presign_get(&body.key, std::env::var("PRESIGN_EXPIRES_SECS").ok().and_then(|v|v.parse().ok()).unwrap_or(900)).map_err(|_|actix_web::error::ErrorInternalServerError("presign"))?; Ok(HttpResponse::Ok().json(crate::http::dto::object_dto::GetUrlRes{ download_url:url })) }
