@@ -1,0 +1,218 @@
+{
+  "code": "patient-admission",
+  "name": "Patient Admission Workflow",
+  "version": 1,
+  "spec": {
+    "steps": [
+      {
+        "id": "validate-patient",
+        "name": "Validate Patient Information",
+        "http": {
+          "method": "POST",
+          "url": "http://patient-service/api/v1/patients/validate",
+          "body": {
+            "patient_id": "{{ctx.patient_id}}"
+          },
+          "save_as": "patient_validation"
+        },
+        "compensate": {
+          "http": {
+            "method": "DELETE",
+            "url": "http://patient-service/api/v1/patients/{{ctx.patient_id}}/validation"
+          }
+        }
+      },
+      {
+        "id": "check-insurance",
+        "name": "Check Insurance Coverage",
+        "http": {
+          "method": "POST",
+          "url": "http://insurance-service/api/v1/coverage/check",
+          "body": {
+            "patient_id": "{{ctx.patient_id}}",
+            "insurance_number": "{{ctx.insurance_number}}"
+          },
+          "save_as": "insurance_coverage"
+        }
+      },
+      {
+        "id": "assign-room",
+        "name": "Assign Hospital Room",
+        "parallel": {
+          "branches": [
+            {
+              "steps": [
+                {
+                  "id": "check-room-availability",
+                  "name": "Check Room Availability",
+                  "http": {
+                    "method": "GET",
+                    "url": "http://room-service/api/v1/rooms/available",
+                    "save_as": "available_rooms"
+                  }
+                }
+              ]
+            },
+            {
+              "steps": [
+                {
+                  "id": "check-equipment",
+                  "name": "Check Medical Equipment",
+                  "http": {
+                    "method": "GET",
+                    "url": "http://equipment-service/api/v1/equipment/available",
+                    "save_as": "available_equipment"
+                  }
+                }
+              ]
+            }
+          ],
+          "merge_key": "parallel_result"
+        }
+      },
+      {
+        "id": "make-decision",
+        "name": "Make Admission Decision",
+        "switch": {
+          "condition": "ctx.insurance_coverage.approved == true && ctx.available_rooms_0.length > 0",
+          "cases": [
+            {
+              "condition": "true",
+              "steps": [
+                {
+                  "id": "approve-admission",
+                  "name": "Approve Admission",
+                  "http": {
+                    "method": "POST",
+                    "url": "http://admission-service/api/v1/admissions",
+                    "body": {
+                      "patient_id": "{{ctx.patient_id}}",
+                      "room_id": "{{ctx.available_rooms_0[0].id}}",
+                      "insurance_approved": true
+                    },
+                    "save_as": "admission_result"
+                  }
+                },
+                {
+                  "id": "notify-success",
+                  "name": "Notify Success",
+                  "kafka-publish": {
+                    "topic": "patient-admissions",
+                    "key": "{{ctx.patient_id}}",
+                    "payload": {
+                      "event": "admission_approved",
+                      "patient_id": "{{ctx.patient_id}}",
+                      "admission_id": "{{ctx.admission_result.id}}"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "condition": "false",
+              "steps": [
+                {
+                  "id": "reject-admission",
+                  "name": "Reject Admission",
+                  "http": {
+                    "method": "POST",
+                    "url": "http://admission-service/api/v1/admissions/reject",
+                    "body": {
+                      "patient_id": "{{ctx.patient_id}}",
+                      "reason": "Insurance not approved or no rooms available"
+                    },
+                    "save_as": "rejection_result"
+                  }
+                },
+                {
+                  "id": "notify-rejection",
+                  "name": "Notify Rejection",
+                  "kafka-publish": {
+                    "topic": "patient-admissions",
+                    "key": "{{ctx.patient_id}}",
+                    "payload": {
+                      "event": "admission_rejected",
+                      "patient_id": "{{ctx.patient_id}}",
+                      "reason": "{{ctx.rejection_result.reason}}"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "wait-for-confirmation",
+        "name": "Wait for Doctor Confirmation",
+        "event-trigger": {
+          "event": "doctor_confirmation",
+          "payload": {
+            "patient_id": "{{ctx.patient_id}}",
+            "admission_id": "{{ctx.admission_result.id}}"
+          },
+          "wait_for": {
+            "timeout": 300,
+            "save_as": "doctor_confirmation"
+          }
+        }
+      },
+      {
+        "id": "finalize-admission",
+        "name": "Finalize Admission",
+        "http": {
+          "method": "PUT",
+          "url": "http://admission-service/api/v1/admissions/{{ctx.admission_result.id}}/finalize",
+          "body": {
+            "doctor_confirmed": "{{ctx.doctor_confirmation.confirmed}}",
+            "notes": "{{ctx.doctor_confirmation.notes}}"
+          },
+          "save_as": "final_admission"
+        }
+      },
+      {
+        "id": "send-notifications",
+        "name": "Send Notifications",
+        "parallel": {
+          "branches": [
+            {
+              "steps": [
+                {
+                  "id": "notify-patient",
+                  "name": "Notify Patient",
+                  "kafka-publish": {
+                    "topic": "notifications",
+                    "key": "{{ctx.patient_id}}",
+                    "payload": {
+                      "type": "admission_confirmed",
+                      "patient_id": "{{ctx.patient_id}}",
+                      "room_number": "{{ctx.final_admission.room_number}}"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "steps": [
+                {
+                  "id": "notify-staff",
+                  "name": "Notify Medical Staff",
+                  "kafka-publish": {
+                    "topic": "staff-notifications",
+                    "key": "{{ctx.final_admission.room_id}}",
+                    "payload": {
+                      "type": "new_patient",
+                      "patient_id": "{{ctx.patient_id}}",
+                      "room_id": "{{ctx.final_admission.room_id}}",
+                      "admission_time": "{{ctx.final_admission.created_at}}"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

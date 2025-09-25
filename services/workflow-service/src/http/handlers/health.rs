@@ -1,60 +1,35 @@
-use actix_web::{HttpResponse, web};
-use sqlx::{Pool, Postgres};
-use crate::infrastructure::iam_client;
-use crate::config::Settings;
+use actix_web::{web, HttpResponse};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
-static mut PERMISSIONS_REGISTERED: bool = false;
+static PERMISSIONS_REGISTERED: AtomicBool = AtomicBool::new(false);
 
-pub fn set_permissions_registered(status: bool) {
-    unsafe {
-        PERMISSIONS_REGISTERED = status;
-    }
-}
-
-#[derive(serde::Serialize)]
-struct HealthResponse {
-    status: String,
-    service: String,
-    database: String,
-    iam_registration: String,
+pub fn set_permissions_registered(registered: bool) {
+    PERMISSIONS_REGISTERED.store(registered, Ordering::Relaxed);
 }
 
 pub async fn healthz(
-    cfg: web::Data<Settings>,
-    db: web::Data<Pool<Postgres>>,
+    db: web::Data<sqlx::Pool<sqlx::Postgres>>,
 ) -> actix_web::Result<HttpResponse> {
-    let mut healthy = true;
-    let mut database_status = "ok".to_string();
-    let mut iam_status = "ok".to_string();
+    // Check database connectivity
+    let db_healthy = sqlx::query("SELECT 1")
+        .execute(&**db)
+        .await
+        .is_ok();
 
-    // Check database connection
-    if let Err(e) = db.acquire().await {
-        tracing::error!("Database connection error: {:?}", e);
-        database_status = format!("error: {}", e);
-        healthy = false;
-    }
+    let iam_registered = PERMISSIONS_REGISTERED.load(Ordering::Relaxed);
 
-    // Check IAM service registration status
-    if unsafe { !PERMISSIONS_REGISTERED } {
-        if let Err(e) = iam_client::register_permissions(&cfg).await {
-            tracing::error!("IAM permission registration failed: {:?}", e);
-            iam_status = format!("error: {}", e);
-            healthy = false;
-        } else {
-            set_permissions_registered(true);
-        }
-    }
-
-    let response = HealthResponse {
-        status: if healthy { "ok".to_string() } else { "error".to_string() },
-        service: cfg.service_name.clone(),
-        database: database_status,
-        iam_registration: iam_status,
+    let status = if db_healthy && iam_registered {
+        "healthy"
+    } else {
+        "unhealthy"
     };
 
-    if healthy {
-        Ok(HttpResponse::Ok().json(response))
-    } else {
-        Ok(HttpResponse::InternalServerError().json(response))
-    }
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "status": status,
+        "checks": {
+            "database": if db_healthy { "ok" } else { "error" },
+            "iam_permissions": if iam_registered { "registered" } else { "not_registered" }
+        }
+    })))
 }

@@ -59,4 +59,10 @@ pub fn api_scope() -> Scope {
                 .wrap(RequirePermission::new(perm::OBSERVABILITY_HEALTH))
                 .route(web::get().to(crate::api::observability::metrics))
         )
+        // Events
+        .service(
+            web::resource("/api/v1/wf/events")
+                .wrap(RequirePermission::new(perm::EVENT_HANDLE))
+                .route(web::post().to(crate::api::events::handle_event))
+        )
 }

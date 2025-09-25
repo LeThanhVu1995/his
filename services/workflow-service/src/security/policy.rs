@@ -6,6 +6,7 @@ pub mod perm {
     pub const TASK_CLAIM: &str = "his.workflow.task.claim";
     pub const TASK_COMPLETE: &str = "his.workflow.task.complete";
     pub const OBSERVABILITY_HEALTH: &str = "his.workflow.observability.health";
+    pub const EVENT_HANDLE: &str = "his.workflow.event.handle";
 }
 
 pub use app_web::security::PermissionDef;
@@ -20,5 +21,6 @@ pub fn permission_catalog(_svc: &str) -> Vec<PermissionDef> {
         PermissionDef::new(TASK_CLAIM, "Claim workflow task", "tasks", "claim"),
         PermissionDef::new(TASK_COMPLETE, "Complete workflow task", "tasks", "complete"),
         PermissionDef::new(OBSERVABILITY_HEALTH, "Check workflow health", "observability", "health"),
+        PermissionDef::new(EVENT_HANDLE, "Handle workflow events", "events", "handle"),
     ]
 }

@@ -1,49 +1,52 @@
 use actix_web::{HttpResponse, ResponseError};
-use serde::Serialize;
-use thiserror::Error;
+use serde_json::json;
 
-#[derive(Debug, Serialize)]
-pub struct ProblemDetails {
-    pub r#type: String,
-    pub title: String,
-    pub status: u16,
-    pub detail: Option<String>,
-}
-
-#[derive(Debug, Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum AppError {
-    #[error("Unauthorized")]
-    Unauthorized,
-    #[error("Forbidden")]
-    Forbidden,
-    #[error("Not Found")]
-    NotFound,
-    #[error("Bad Request: {0}")]
-    BadRequest(String),
-    #[error("Conflict: {0}")]
-    Conflict(String),
-    #[error("Internal: {0}")]
+    #[error("Internal server error: {0}")]
     Internal(String),
+    #[error("Not found")]
+    NotFound,
+    #[error("Bad request: {0}")]
+    BadRequest(String),
+    #[error("Unauthorized: {0}")]
+    Unauthorized(String),
+    #[error("Forbidden: {0}")]
+    Forbidden(String),
 }
 
 impl ResponseError for AppError {
     fn error_response(&self) -> HttpResponse {
-        use AppError::*;
-        let (s, t, d) = match self {
-            Unauthorized => (401, "Unauthorized", None),
-            Forbidden => (403, "Forbidden", None),
-            NotFound => (404, "Not Found", None),
-            BadRequest(m) => (400, "Bad Request", Some(m.clone())),
-            Conflict(m) => (409, "Conflict", Some(m.clone())),
-            Internal(m) => (500, "Internal Server Error", Some(m.clone())),
-        };
-        HttpResponse::build(actix_web::http::StatusCode::from_u16(s).unwrap())
-            .content_type("application/problem+json")
-            .json(ProblemDetails {
-                r#type: "about:blank".into(),
-                title: t.into(),
-                status: s,
-                detail: d,
-            })
+        match self {
+            AppError::Internal(msg) => {
+                HttpResponse::InternalServerError().json(json!({
+                    "error": "Internal Server Error",
+                    "message": msg
+                }))
+            }
+            AppError::NotFound => {
+                HttpResponse::NotFound().json(json!({
+                    "error": "Not Found"
+                }))
+            }
+            AppError::BadRequest(msg) => {
+                HttpResponse::BadRequest().json(json!({
+                    "error": "Bad Request",
+                    "message": msg
+                }))
+            }
+            AppError::Unauthorized(msg) => {
+                HttpResponse::Unauthorized().json(json!({
+                    "error": "Unauthorized",
+                    "message": msg
+                }))
+            }
+            AppError::Forbidden(msg) => {
+                HttpResponse::Forbidden().json(json!({
+                    "error": "Forbidden",
+                    "message": msg
+                }))
+            }
+        }
     }
 }
