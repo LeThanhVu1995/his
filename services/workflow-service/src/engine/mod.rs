@@ -1,1 +1,5 @@
-// workflow-service src/engine/mod.rs placeholder
+pub mod interpreter;
+pub mod scheduler;
+pub mod executor;
+pub mod compensation;
+pub mod checkpoint;

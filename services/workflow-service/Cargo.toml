@@ -1,4 +1,40 @@
 [package]
-name="workflow-service"
-version="0.0.0"
-edition="2021"
+name = "workflow-service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web.workspace = true
+actix-web-validator.workspace = true
+actix-cors.workspace = true
+actix-governor.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_with.workspace = true
+config.workspace = true
+dotenvy.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+validator.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+reqwest.workspace = true
+utoipa.workspace = true
+utoipa-swagger-ui.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+sha2.workspace = true
+futures-util.workspace = true
+serde_yaml = "0.9"
+jsonpath-rust = "0.7"
+cel-interpreter = "0.6"
+
+# Workspace crates
+app-auth.workspace = true
+app-web.workspace = true
+app-core.workspace = true
+app-error.workspace = true
+app-telemetry.workspace = true
+app-config.workspace = true

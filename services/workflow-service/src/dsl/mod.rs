@@ -1,1 +1,4 @@
-// workflow-service src/dsl/mod.rs placeholder
+pub mod model;
+pub mod parser;
+pub mod cel;
+pub mod jsonata;

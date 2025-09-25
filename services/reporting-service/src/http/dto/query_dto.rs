@@ -1,1 +1,8 @@
-// reporting-service src/http/dto/query_dto.rs placeholder
+use serde::Deserialize;
+use chrono::NaiveDate;
+
+#[derive(Debug, Deserialize)]
+pub struct RangeQuery {
+    pub start: NaiveDate,
+    pub end: NaiveDate,
+}

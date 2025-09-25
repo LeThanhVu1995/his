@@ -1,4 +1,38 @@
 [package]
-name="reporting-service"
-version="0.0.0"
-edition="2021"
+name = "reporting-service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web.workspace = true
+actix-web-validator.workspace = true
+actix-cors.workspace = true
+actix-governor.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+config.workspace = true
+dotenvy.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+validator.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+reqwest.workspace = true
+utoipa.workspace = true
+utoipa-swagger-ui.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+futures-util.workspace = true
+bytes = "1"
+csv = "1"
+umya-spreadsheet = "1"
+
+# Workspace crates
+app-auth.workspace = true
+app-web.workspace = true
+app-core.workspace = true
+app-error.workspace = true
+app-telemetry.workspace = true
+app-config.workspace = true

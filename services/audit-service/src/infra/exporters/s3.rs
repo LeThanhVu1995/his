@@ -1,1 +1,2 @@
-// audit-service src/infra/exporters/s3.rs placeholder
+// S3 exporter placeholder for audit events
+// TODO: Implement S3 export functionality when needed

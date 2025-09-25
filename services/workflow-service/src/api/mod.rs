@@ -1,1 +1,4 @@
-// workflow-service src/api/mod.rs placeholder
+pub mod templates;
+pub mod instances;
+pub mod tasks;
+pub mod observability;
