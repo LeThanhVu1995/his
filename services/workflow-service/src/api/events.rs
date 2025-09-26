@@ -47,7 +47,7 @@ pub async fn handle_event(
 }
 
 async fn find_waiting_instances(
-    store: &InstanceStore,
+    store: &InstanceStore<'_>,
     event_name: &str,
 ) -> anyhow::Result<Vec<Uuid>> {
     // This would typically query the database for instances waiting for this specific event

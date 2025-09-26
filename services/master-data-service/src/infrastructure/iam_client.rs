@@ -1,4 +1,5 @@
-use crate::security::policy::{permission_catalog, PermissionDef};
+use crate::security::policy::permission_catalog;
+use app_web::security::PermissionDef;
 use crate::config::Settings;
 use anyhow::Context;
 use std::time::Duration;

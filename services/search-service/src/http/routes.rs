@@ -7,4 +7,5 @@ pub fn api_scope() -> Scope {
         .route("/healthz", web::get().to(handlers::health::healthz))
         .service(handlers::search_all::search)
         .service(handlers::reindex::reindex)
+        .service(handlers::sync_test::sync_test)
 }

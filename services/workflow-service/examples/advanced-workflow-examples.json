@@ -1,0 +1,268 @@
+{
+  "examples": {
+    "dynamic_parallel": {
+      "code": "process-multiple-patients",
+      "name": "Process Multiple Patients in Parallel",
+      "version": 1,
+      "spec": {
+        "steps": [
+          {
+            "id": "process-patients",
+            "name": "Process Multiple Patients",
+            "parallel_for": {
+              "items": "{{ctx.patient_list}}",
+              "as": "patient",
+              "merge_key": "patient_results",
+              "steps": [
+                {
+                  "id": "validate-patient",
+                  "http": {
+                    "method": "POST",
+                    "url": "http://patient-service/api/v1/patients/validate",
+                    "body": {
+                      "patient_id": "{{vars.patient.id}}",
+                      "name": "{{vars.patient.name}}"
+                    },
+                    "save_as": "validation_result",
+                    "timeout_secs": 10
+                  },
+                  "retry": {
+                    "max_attempts": 3,
+                    "backoff": {
+                      "type": "exponential",
+                      "initial_secs": 1,
+                      "max_secs": 30
+                    }
+                  }
+                },
+                {
+                  "id": "check-insurance",
+                  "http": {
+                    "method": "POST",
+                    "url": "http://insurance-service/api/v1/coverage/check",
+                    "body": {
+                      "patient_id": "{{vars.patient.id}}",
+                      "insurance_number": "{{vars.patient.insurance}}"
+                    },
+                    "save_as": "insurance_result",
+                    "timeout_secs": 15
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "aggregate-results",
+            "name": "Aggregate All Results",
+            "http": {
+              "method": "POST",
+              "url": "http://reporting-service/api/v1/reports/patient-summary",
+              "body": {
+                "results": "{{ctx.patient_results}}",
+                "total_processed": "{{ctx.patient_results.length}}"
+              },
+              "save_as": "summary_report"
+            }
+          }
+        ]
+      }
+    },
+
+    "while_loop": {
+      "code": "retry-until-success",
+      "name": "Retry Until Success",
+      "version": 1,
+      "spec": {
+        "steps": [
+          {
+            "id": "initialize-retry",
+            "name": "Initialize Retry Variables",
+            "http": {
+              "method": "POST",
+              "url": "http://context-service/api/v1/init",
+              "body": {
+                "retry_count": 0,
+                "max_retries": 5,
+                "success": false
+              },
+              "save_as": "retry_state"
+            }
+          },
+          {
+            "id": "retry-loop",
+            "name": "Retry Until Success",
+            "loop": {
+              "while": "ctx.retry_state.success == false && ctx.retry_state.retry_count < ctx.retry_state.max_retries",
+              "max_iter": 10,
+              "steps": [
+                {
+                  "id": "attempt-operation",
+                  "name": "Attempt Operation",
+                  "try": {
+                    "steps": [
+                      {
+                        "id": "call-external-api",
+                        "http": {
+                          "method": "POST",
+                          "url": "http://external-service/api/v1/process",
+                          "body": {
+                            "data": "{{ctx.input_data}}"
+                          },
+                          "save_as": "operation_result",
+                          "timeout_secs": 30
+                        }
+                      }
+                    ]
+                  },
+                  "catch": [
+                    {
+                      "on": "http_error",
+                      "steps": [
+                        {
+                          "id": "log-error",
+                          "kafka-publish": {
+                            "topic": "error-logs",
+                            "key": "{{ctx.retry_state.retry_count}}",
+                            "payload": {
+                              "error": "HTTP call failed",
+                              "retry_count": "{{ctx.retry_state.retry_count}}"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "finally": [
+                    {
+                      "id": "increment-retry",
+                      "http": {
+                        "method": "PUT",
+                        "url": "http://context-service/api/v1/retry-count",
+                        "body": {
+                          "retry_count": "{{ctx.retry_state.retry_count + 1}}"
+                        },
+                        "save_as": "retry_state"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+
+    "foreach_loop": {
+      "code": "process-documents",
+      "name": "Process Documents Sequentially",
+      "version": 1,
+      "spec": {
+        "steps": [
+          {
+            "id": "get-documents",
+            "name": "Get Document List",
+            "http": {
+              "method": "GET",
+              "url": "http://document-service/api/v1/documents",
+              "save_as": "document_list"
+            }
+          },
+          {
+            "id": "process-each-document",
+            "name": "Process Each Document",
+            "foreach": {
+              "items": "{{ctx.document_list}}",
+              "as": "document",
+              "steps": [
+                {
+                  "id": "validate-document",
+                  "http": {
+                    "method": "POST",
+                    "url": "http://validation-service/api/v1/validate",
+                    "body": {
+                      "document_id": "{{vars.document.id}}",
+                      "type": "{{vars.document.type}}"
+                    },
+                    "save_as": "validation_result"
+                  }
+                },
+                {
+                  "id": "process-document",
+                  "http": {
+                    "method": "POST",
+                    "url": "http://processing-service/api/v1/process",
+                    "body": {
+                      "document_id": "{{vars.document.id}}",
+                      "validation_result": "{{ctx.validation_result}}"
+                    },
+                    "save_as": "processing_result"
+                  }
+                },
+                {
+                  "id": "notify-completion",
+                  "kafka-publish": {
+                    "topic": "document-processed",
+                    "key": "{{vars.document.id}}",
+                    "payload": {
+                      "document_id": "{{vars.document.id}}",
+                      "status": "completed",
+                      "result": "{{ctx.processing_result}}"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+
+    "versioned_workflow": {
+      "code": "versioned-admission",
+      "name": "Versioned Patient Admission",
+      "version": 2,
+      "spec": {
+        "steps": [
+          {
+            "id": "validate-patient-v2",
+            "name": "Validate Patient (v2)",
+            "http": {
+              "method": "POST",
+              "url": "http://patient-service/api/v2/patients/validate",
+              "body": {
+                "patient_id": "{{ctx.patient_id}}",
+                "include_medical_history": true
+              },
+              "save_as": "patient_validation",
+              "timeout_secs": 15
+            },
+            "retry": {
+              "max_attempts": 3,
+              "backoff": {
+                "type": "exponential",
+                "initial_secs": 2,
+                "max_secs": 30
+              }
+            }
+          },
+          {
+            "id": "enhanced-insurance-check",
+            "name": "Enhanced Insurance Check",
+            "http": {
+              "method": "POST",
+              "url": "http://insurance-service/api/v2/coverage/check",
+              "body": {
+                "patient_id": "{{ctx.patient_id}}",
+                "insurance_number": "{{ctx.insurance_number}}",
+                "include_preauth": true
+              },
+              "save_as": "insurance_coverage",
+              "timeout_secs": 20
+            }
+          }
+        ]
+      }
+    }
+  }
+}

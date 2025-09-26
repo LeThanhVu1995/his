@@ -12,14 +12,34 @@ impl<'a> InstanceStore<'a> {
         code: &str,
         input: &serde_json::Value,
     ) -> anyhow::Result<Uuid> {
+        self.create_with_version(code, None, input).await
+    }
+
+    pub async fn create_with_version(
+        &self,
+        code: &str,
+        version: Option<i32>,
+        input: &serde_json::Value,
+    ) -> anyhow::Result<Uuid> {
         let id = Uuid::new_v4();
         let ctx = serde_json::json!({"vars": {}, "ctx": {}});
+
+        // Lock template version at creation time
+        let template_version = if let Some(v) = version {
+            v
+        } else {
+            // Get latest version if not specified
+            let template_store = crate::store::templates::TemplateStore { db: self.db };
+            template_store.get_latest_version(code).await?.unwrap_or(1)
+        };
+
         sqlx::query(
-            "INSERT INTO wf_instances(id,template_code,status,input,context,cursor)
-             VALUES($1,$2,'PENDING',$3,$4,$5)"
+            "INSERT INTO wf_instances(id,template_code,template_version,status,input,context,cursor)
+             VALUES($1,$2,$3,'PENDING',$4,$5,$6)"
         )
         .bind(id)
         .bind(code)
+        .bind(template_version)
         .bind(input)
         .bind(ctx)
         .bind(serde_json::json!({"step": 0}))
@@ -30,7 +50,7 @@ impl<'a> InstanceStore<'a> {
 
     pub async fn get(&self, id: Uuid) -> anyhow::Result<Option<crate::domain::entities::instance::Instance>> {
         Ok(sqlx::query_as::<_, crate::domain::entities::instance::Instance>(
-            r#"SELECT id,template_code,status,input,context,cursor,error,next_wake_at,created_at,updated_at
+            r#"SELECT id,template_code,template_version,status,input,context,cursor,error,next_wake_at,created_at,updated_at
                FROM wf_instances WHERE id=$1"#
         )
         .bind(id)

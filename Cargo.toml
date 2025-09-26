@@ -42,4 +42,6 @@ app-core = { path = "crates/app-core" }
 app-error = { path = "crates/app-error" }
 app-telemetry = { path = "crates/app-telemetry" }
 app-config = { path = "crates/app-config" }
+app-kafka = { path = "crates/app-kafka" }
+app-outbox = { path = "crates/app-outbox" }
 

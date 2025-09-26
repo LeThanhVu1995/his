@@ -30,6 +30,7 @@ futures-util.workspace = true
 serde_yaml = "0.9"
 jsonpath-rust = "0.7"
 cel-interpreter = "0.6"
+once_cell = "1.19"
 
 # Workspace crates
 app-auth.workspace = true

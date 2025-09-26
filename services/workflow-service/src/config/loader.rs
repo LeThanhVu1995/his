@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use app_web::security::SecurityConfig;
+use app_config::SecurityConfig;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {

@@ -23,6 +23,6 @@ impl FromRequest for AuthUser {
         if let Some(c) = req.extensions().get::<Claims>() {
             return ready(Ok(AuthUser(c.clone())));
         }
-        ready(Err(crate::error::AppError::Unauthorized.into()))
+        ready(Err(crate::error::AppError::Unauthorized("No authentication found".to_string()).into()))
     }
 }

@@ -13,7 +13,23 @@
           "body": {
             "patient_id": "{{ctx.patient_id}}"
           },
-          "save_as": "patient_validation"
+          "save_as": "patient_validation",
+          "timeout_secs": 10
+        },
+        "retry": {
+          "max_attempts": 3,
+          "backoff": {
+            "type": "exponential",
+            "initial_secs": 1,
+            "max_secs": 30
+          }
+        },
+        "resilience": {
+          "circuit": {
+            "service": "patient-service",
+            "fail_threshold": 5,
+            "half_open_after_secs": 30
+          }
         },
         "compensate": {
           "http": {
@@ -32,42 +48,120 @@
             "patient_id": "{{ctx.patient_id}}",
             "insurance_number": "{{ctx.insurance_number}}"
           },
-          "save_as": "insurance_coverage"
+          "save_as": "insurance_coverage",
+          "timeout_secs": 15
+        },
+        "retry": {
+          "max_attempts": 2,
+          "backoff": {
+            "type": "exponential",
+            "initial_secs": 2,
+            "max_secs": 20
+          }
+        },
+        "resilience": {
+          "circuit": {
+            "service": "insurance-service",
+            "fail_threshold": 3,
+            "half_open_after_secs": 20
+          }
         }
       },
       {
         "id": "assign-room",
-        "name": "Assign Hospital Room",
-        "parallel": {
-          "branches": [
+        "name": "Assign Hospital Room with Dependencies",
+        "dag": {
+          "nodes": [
             {
+              "id": "check-room-availability",
               "steps": [
                 {
-                  "id": "check-room-availability",
-                  "name": "Check Room Availability",
+                  "id": "get-rooms",
+                  "name": "Get Available Rooms",
                   "http": {
                     "method": "GET",
                     "url": "http://room-service/api/v1/rooms/available",
-                    "save_as": "available_rooms"
+                    "save_as": "available_rooms",
+                    "timeout_secs": 10
+                  },
+                  "resilience": {
+                    "circuit": {
+                      "service": "room-service",
+                      "fail_threshold": 3,
+                      "half_open_after_secs": 15
+                    }
                   }
                 }
               ]
             },
             {
+              "id": "check-equipment",
               "steps": [
                 {
-                  "id": "check-equipment",
-                  "name": "Check Medical Equipment",
+                  "id": "get-equipment",
+                  "name": "Get Available Equipment",
                   "http": {
                     "method": "GET",
                     "url": "http://equipment-service/api/v1/equipment/available",
-                    "save_as": "available_equipment"
+                    "save_as": "available_equipment",
+                    "timeout_secs": 10
+                  },
+                  "resilience": {
+                    "circuit": {
+                      "service": "equipment-service",
+                      "fail_threshold": 3,
+                      "half_open_after_secs": 15
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "assign-specific-room",
+              "steps": [
+                {
+                  "id": "assign-room",
+                  "name": "Assign Specific Room",
+                  "http": {
+                    "method": "POST",
+                    "url": "http://room-service/api/v1/rooms/assign",
+                    "body": {
+                      "patient_id": "{{ctx.patient_id}}",
+                      "room_preference": "{{ctx.available_rooms[0].id}}",
+                      "equipment_required": "{{ctx.available_equipment}}"
+                    },
+                    "save_as": "assigned_room",
+                    "timeout_secs": 15
+                  },
+                  "retry": {
+                    "max_attempts": 2,
+                    "backoff": {
+                      "type": "exponential",
+                      "initial_secs": 1,
+                      "max_secs": 10
+                    }
+                  },
+                  "resilience": {
+                    "circuit": {
+                      "service": "room-service",
+                      "fail_threshold": 3,
+                      "half_open_after_secs": 15
+                    }
                   }
                 }
               ]
             }
           ],
-          "merge_key": "parallel_result"
+          "edges": [
+            {
+              "from": "check-room-availability",
+              "to": "assign-specific-room"
+            },
+            {
+              "from": "check-equipment",
+              "to": "assign-specific-room"
+            }
+          ]
         }
       },
       {
@@ -103,6 +197,15 @@
                       "event": "admission_approved",
                       "patient_id": "{{ctx.patient_id}}",
                       "admission_id": "{{ctx.admission_result.id}}"
+                    },
+                    "timeout_secs": 5
+                  },
+                  "retry": {
+                    "max_attempts": 3,
+                    "backoff": {
+                      "type": "exponential",
+                      "initial_secs": 1,
+                      "max_secs": 10
                     }
                   }
                 }
@@ -167,7 +270,23 @@
             "doctor_confirmed": "{{ctx.doctor_confirmation.confirmed}}",
             "notes": "{{ctx.doctor_confirmation.notes}}"
           },
-          "save_as": "final_admission"
+          "save_as": "final_admission",
+          "timeout_secs": 10
+        },
+        "retry": {
+          "max_attempts": 2,
+          "backoff": {
+            "type": "exponential",
+            "initial_secs": 1,
+            "max_secs": 5
+          }
+        },
+        "resilience": {
+          "circuit": {
+            "service": "admission-service",
+            "fail_threshold": 3,
+            "half_open_after_secs": 15
+          }
         }
       },
       {

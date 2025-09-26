@@ -15,20 +15,13 @@ pub mod perm {
 /// - ROLE_MASTER_EDITOR -> create/update/delete + list/read cho code
 /// - ROLE_MASTER_VIEWER -> list/read
 
-#[derive(serde::Serialize)]
-pub struct PermissionDef {
-    pub name: String,      // ví dụ: his.master.code.read
-    pub description: String,
-    pub service: String,   // master-data-service
-}
-
-pub fn permission_catalog(service_name: &str) -> Vec<PermissionDef> {
+pub fn permission_catalog(service_name: &str) -> Vec<app_web::security::PermissionDef> {
     use perm::*;
     vec![
-        PermissionDef { name: MASTER_CODE_LIST.into(),   description: "List codes".into(),   service: service_name.into() },
-        PermissionDef { name: MASTER_CODE_READ.into(),   description: "Read code".into(),    service: service_name.into() },
-        PermissionDef { name: MASTER_CODE_CREATE.into(), description: "Create code".into(),  service: service_name.into() },
-        PermissionDef { name: MASTER_CODE_UPDATE.into(), description: "Update code".into(),  service: service_name.into() },
-        PermissionDef { name: MASTER_CODE_DELETE.into(), description: "Delete code".into(),  service: service_name.into() },
+        app_web::security::PermissionDef::new(MASTER_CODE_LIST,   "List codes", service_name, "list"),
+        app_web::security::PermissionDef::new(MASTER_CODE_READ,   "Read code",  service_name, "read"),
+        app_web::security::PermissionDef::new(MASTER_CODE_CREATE, "Create code",service_name, "create"),
+        app_web::security::PermissionDef::new(MASTER_CODE_UPDATE, "Update code",service_name, "update"),
+        app_web::security::PermissionDef::new(MASTER_CODE_DELETE, "Delete code",service_name, "delete"),
     ]
 }

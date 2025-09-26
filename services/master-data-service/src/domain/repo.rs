@@ -1,4 +1,4 @@
-use crate::domain::models::MasterCode;
+use crate::domain::models::{MasterCode, LkCodeSet, LkCode};
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
@@ -7,6 +7,70 @@ pub struct MasterRepo<'a> {
 }
 
 impl<'a> MasterRepo<'a> {
+    // -------------------- NEW: Code Sets --------------------
+    pub async fn list_code_sets(&self) -> anyhow::Result<Vec<LkCodeSet>> {
+        let items = sqlx::query_as::<_, LkCodeSet>(r#"
+            SELECT code_set_id, code, name, description FROM lk_code_set ORDER BY code
+        "#)
+        .fetch_all(self.db).await?;
+        Ok(items)
+    }
+
+    pub async fn get_code_set_by_code(&self, code: &str) -> anyhow::Result<Option<LkCodeSet>> {
+        let rec = sqlx::query_as::<_, LkCodeSet>(r#"
+            SELECT code_set_id, code, name, description FROM lk_code_set WHERE code = $1
+        "#)
+        .bind(code)
+        .fetch_optional(self.db).await?;
+        Ok(rec)
+    }
+
+    pub async fn create_code_set(&self, code: &str, name: &str, description: Option<&str>) -> anyhow::Result<LkCodeSet> {
+        let id = uuid::Uuid::new_v4().to_string();
+        let rec = sqlx::query_as::<_, LkCodeSet>(r#"
+            INSERT INTO lk_code_set (code_set_id, code, name, description)
+            VALUES ($1, $2, $3, $4)
+            RETURNING code_set_id, code, name, description
+        "#)
+        .bind(&id)
+        .bind(code)
+        .bind(name)
+        .bind(description)
+        .fetch_one(self.db).await?;
+        Ok(rec)
+    }
+
+    // -------------------- NEW: Codes --------------------
+    pub async fn list_codes_by_set(&self, code_set_code: &str) -> anyhow::Result<Vec<LkCode>> {
+        let items = sqlx::query_as::<_, LkCode>(r#"
+            SELECT c.code_id, c.code_set_id, c.code, c.display, c.extra_json
+            FROM lk_code c
+            JOIN lk_code_set s ON s.code_set_id = c.code_set_id
+            WHERE s.code = $1
+            ORDER BY c.code
+        "#)
+        .bind(code_set_code)
+        .fetch_all(self.db).await?;
+        Ok(items)
+    }
+
+    pub async fn create_code_in_set(&self, code_set_code: &str, code: &str, display: &str, extra_json: Option<&str>) -> anyhow::Result<LkCode> {
+        let set = self.get_code_set_by_code(code_set_code).await?
+            .ok_or_else(|| anyhow::anyhow!("code set not found"))?;
+        let id = uuid::Uuid::new_v4().to_string();
+        let rec = sqlx::query_as::<_, LkCode>(r#"
+            INSERT INTO lk_code (code_id, code_set_id, code, display, extra_json)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING code_id, code_set_id, code, display, extra_json
+        "#)
+        .bind(&id)
+        .bind(&set.code_set_id)
+        .bind(code)
+        .bind(display)
+        .bind(extra_json)
+        .fetch_one(self.db).await?;
+        Ok(rec)
+    }
 
     pub async fn list_codes_paged(&self, category: Option<&str>, page: i64, page_size: i64) -> anyhow::Result<(Vec<MasterCode>, i64)> {
         let page = page.max(1);

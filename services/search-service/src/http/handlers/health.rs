@@ -30,4 +30,3 @@ pub async fn healthz(db: web::Data<Pool<Postgres>>) -> actix_web::Result<HttpRes
 }
 
 // permissions
-pub use crate::security::permission::RequirePermission;

@@ -7,6 +7,7 @@ use utoipa::ToSchema;
 pub struct Instance {
     pub id: Uuid,
     pub template_code: String,
+    pub template_version: Option<i32>,
     pub status: String,
     pub input: Option<serde_json::Value>,
     pub context: serde_json::Value,

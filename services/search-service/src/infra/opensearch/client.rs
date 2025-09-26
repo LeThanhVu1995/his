@@ -60,4 +60,16 @@ impl OsClient {
             .await?;
         Ok(res.json::<serde_json::Value>().await?)
     }
+
+    pub async fn delete_doc(&self, index: &str, id: &str) -> anyhow::Result<()> {
+        let res = self
+            .req(reqwest::Method::DELETE, &format!("{}/_doc/{}", index, id))
+            .await
+            .send()
+            .await?;
+        if !res.status().is_success() {
+            anyhow::bail!(res.text().await?);
+        }
+        Ok(())
+    }
 }

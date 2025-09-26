@@ -57,12 +57,12 @@ where
         let extensions = req.extensions();
         let user = match extensions.get::<AuthUser>() {
             Some(u) => u,
-            None => return Box::pin(async move { Err(AppError::Unauthorized.into()) }),
+            None => return Box::pin(async move { Err(AppError::Unauthorized("No authentication found".to_string()).into()) }),
         };
         let needed = self.perm;
 
         if !user.0.permissions.iter().any(|p| p == needed) {
-            return Box::pin(async move { Err(AppError::Forbidden.into()) });
+            return Box::pin(async move { Err(AppError::Forbidden("Insufficient permissions".to_string()).into()) });
         }
 
         drop(extensions);
