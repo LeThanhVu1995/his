@@ -1,1 +1,1 @@
-// ris-pacs-service src/infra/dicom/worklist.rs placeholder
+// DICOM Worklist placeholder

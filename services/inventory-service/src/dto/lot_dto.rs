@@ -4,6 +4,31 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 use chrono::NaiveDate;
 
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct LotDto {
+    pub id: Uuid,
+    pub item_id: Uuid,
+    pub lot_no: String,
+    pub exp_date: Option<NaiveDate>,
+    pub supplier_id: Option<Uuid>,
+}
+
+#[derive(Debug, Deserialize, Validate, ToSchema)]
+pub struct CreateLotDto {
+    pub item_id: Uuid,
+    pub lot_no: String,
+    pub exp_date: Option<NaiveDate>,
+    pub supplier_id: Option<Uuid>,
+}
+
+#[derive(Debug, Deserialize, Validate, ToSchema)]
+pub struct UpdateLotDto {
+    pub lot_no: Option<String>,
+    pub exp_date: Option<NaiveDate>,
+    pub supplier_id: Option<Uuid>,
+}
+
+// Legacy structs for backward compatibility
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct CreateLotReq {
     pub item_id: Uuid,

@@ -10,27 +10,20 @@ pub async fn write(
         return Err(actix_web::error::ErrorForbidden("disabled"));
     }
     let ev = AuditEvent {
-        id: Uuid::new_v4(),
-        occurred_at: body.occurred_at.unwrap_or(chrono::Utc::now()),
-        actor_id: body.actor_id,
-        actor_name: body.actor_name.clone(),
-        actor_role: body.actor_role.clone(),
-        ip: body.ip.clone(),
-        user_agent: body.user_agent.clone(),
+        audit_id: Uuid::new_v4().to_string(),
+        event_time: body.event_time.unwrap_or(chrono::Utc::now()),
+        user_id: body.user_id.clone(),
+        entity_name: body.entity_name.clone(),
+        entity_id: body.entity_id.clone(),
         action: body.action.clone(),
-        entity_type: body.entity_type.clone(),
-        entity_id: body.entity_id,
-        tenant_id: body.tenant_id,
-        request_id: body.request_id,
-        source: body.source.clone(),
-        data: body.data.clone(),
-        hash: None,
-        created_at: chrono::Utc::now(),
+        before_json: body.before_json.clone(),
+        after_json: body.after_json.clone(),
+        ip_address: body.ip_address.clone(),
     };
     AuditRepo { db: &db }.insert(&ev)
         .await
         .map_err(|_| actix_web::error::ErrorInternalServerError("db"))?;
-    Ok(HttpResponse::Created().json(serde_json::json!({"id": ev.id})))
+    Ok(HttpResponse::Created().json(serde_json::json!({"audit_id": ev.audit_id})))
 }
 
 

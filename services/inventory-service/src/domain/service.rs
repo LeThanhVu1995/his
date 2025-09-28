@@ -38,7 +38,7 @@ impl<'a> InventoryService<'a> {
             movement_id: mv_id,
             item_id: line.item_id,
             lot_id: line.lot_id,
-            qty: line.qty,
+            qty: rust_decimal::Decimal::from_f64_retain(line.qty).unwrap_or_default(),
         }).collect();
 
         self.movements.create(&movement, &movement_lines, &mut tx).await?;
@@ -89,7 +89,7 @@ impl<'a> InventoryService<'a> {
             movement_id: mv_id,
             item_id: line.item_id,
             lot_id: line.lot_id,
-            qty: line.qty,
+            qty: rust_decimal::Decimal::from_f64_retain(line.qty).unwrap_or_default(),
         }).collect();
 
         self.movements.create(&movement, &movement_lines, &mut tx).await?;
@@ -140,7 +140,7 @@ impl<'a> InventoryService<'a> {
             movement_id: mv_id,
             item_id: line.item_id,
             lot_id: line.lot_id,
-            qty: line.qty,
+            qty: rust_decimal::Decimal::from_f64_retain(line.qty).unwrap_or_default(),
         }).collect();
 
         self.movements.create(&movement, &movement_lines, &mut tx).await?;
@@ -203,7 +203,7 @@ impl<'a> InventoryService<'a> {
             movement_id: mv_id,
             item_id: line.item_id,
             lot_id: line.lot_id,
-            qty: line.diff,
+            qty: rust_decimal::Decimal::from_f64_retain(line.diff).unwrap_or_default(),
         }).collect();
 
         self.movements.create(&movement, &movement_lines, &mut tx).await?;

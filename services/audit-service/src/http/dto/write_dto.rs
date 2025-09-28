@@ -1,10 +1,16 @@
 use serde::Deserialize;
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
 #[derive(Debug, Deserialize)]
 pub struct WriteAuditReq {
-    pub occurred_at: Option<DateTime<Utc>>, pub actor_id: Option<Uuid>, pub actor_name: Option<String>, pub actor_role: Option<String>, pub ip: Option<String>, pub user_agent: Option<String>, pub action: String, pub entity_type: Option<String>, pub entity_id: Option<Uuid>, pub tenant_id: Option<Uuid>, pub request_id: Option<Uuid>, pub source: String, pub data: Option<serde_json::Value>
+    pub event_time: Option<DateTime<Utc>>,
+    pub user_id: Option<String>,
+    pub entity_name: String,
+    pub entity_id: String,
+    pub action: String,  // CREATE, UPDATE, DELETE
+    pub before_json: Option<String>,
+    pub after_json: Option<String>,
+    pub ip_address: Option<String>,
 }
 
 

@@ -39,3 +39,5 @@ app-core.workspace = true
 app-error.workspace = true
 app-telemetry.workspace = true
 app-config.workspace = true
+app-kafka.workspace = true
+app-outbox.workspace = true

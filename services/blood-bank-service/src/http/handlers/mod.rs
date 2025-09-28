@@ -1,1 +1,9 @@
+pub mod health;
+pub mod donors;
+pub mod donations;
+pub mod blood_units;
+pub mod adverse_events;
+pub mod crossmatch;
+pub mod issues;
+pub mod blood_requests;
 // handlers mod

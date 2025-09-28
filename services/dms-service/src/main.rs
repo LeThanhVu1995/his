@@ -10,7 +10,9 @@ async fn main() -> std::io::Result<()> {
         service_name: cfg.service_name.clone(),
         config: cfg,
         permission_catalog: crate::security::policy::permission_catalog,
-        set_permissions_registered: crate::http::handlers::health::set_permissions_registered,
+        set_permissions_registered: |is_registered| {
+            if is_registered { crate::http::handlers::health::set_permissions_registered(); }
+        },
         configure_app: |cfg: &mut actix_web::web::ServiceConfig| {
             cfg.configure(http::mount);
         },

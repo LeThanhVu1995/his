@@ -26,4 +26,10 @@ pub fn api_scope() -> Scope {
         .route("/api/v1/appt/appointments:book", web::post().to(handlers::appointments::book_appt))
         .route("/api/v1/appt/appointments/{id}:cancel", web::put().to(handlers::appointments::cancel_appt))
         .route("/api/v1/appt/appointments/{id}:reschedule", web::put().to(handlers::appointments::reschedule_appt))
+        // Equipment
+        .route("/api/v1/scheduling/equipment", web::get().to(handlers::equipment::list_equipment))
+        .route("/api/v1/scheduling/equipment", web::post().to(handlers::equipment::create_equipment))
+        .route("/api/v1/scheduling/equipment/{id}", web::get().to(handlers::equipment::get_equipment))
+        .route("/api/v1/scheduling/equipment/{id}", web::put().to(handlers::equipment::update_equipment))
+        .route("/api/v1/scheduling/equipment/{id}", web::delete().to(handlers::equipment::delete_equipment))
 }

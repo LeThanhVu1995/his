@@ -13,6 +13,15 @@ pub mod perm {
     // Webhooks
     pub const WEBHOOK_REGISTER: &str = "his.notify.webhook.register";
     pub const WEBHOOK_TRIGGER: &str = "his.notify.webhook.trigger";
+
+    // Notifications (aligned with root.sql)
+    pub const NOTIFICATION_LIST: &str = "his.notify.notification.list";
+    pub const NOTIFICATION_CREATE: &str = "his.notify.notification.create";
+    pub const NOTIFICATION_GET: &str = "his.notify.notification.get";
+    pub const NOTIFICATION_UPDATE: &str = "his.notify.notification.update";
+    pub const NOTIFICATION_DELETE: &str = "his.notify.notification.delete";
+    pub const NOTIFICATION_ASSIGN: &str = "his.notify.notification.assign";
+    pub const NOTIFICATION_READ: &str = "his.notify.notification.read";
     pub const WEBHOOK_LIST: &str = "his.notify.webhook.list";
 }
 

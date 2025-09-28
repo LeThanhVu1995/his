@@ -2,7 +2,40 @@ use serde::{Deserialize, Serialize};
 use validator::Validate;
 use utoipa::ToSchema;
 use uuid::Uuid;
+use chrono::{DateTime, Utc};
 
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct MovementDto {
+    pub id: Uuid,
+    pub mv_no: String,
+    pub mv_type: String,
+    pub src_wh: Option<Uuid>,
+    pub dst_wh: Option<Uuid>,
+    pub note: Option<String>,
+    pub created_by: Option<String>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Deserialize, Validate, ToSchema)]
+pub struct CreateMovementDto {
+    pub mv_no: String,
+    pub mv_type: String,
+    pub src_wh: Option<Uuid>,
+    pub dst_wh: Option<Uuid>,
+    pub note: Option<String>,
+    pub created_by: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Validate, ToSchema)]
+pub struct UpdateMovementDto {
+    pub mv_no: Option<String>,
+    pub mv_type: Option<String>,
+    pub src_wh: Option<Uuid>,
+    pub dst_wh: Option<Uuid>,
+    pub note: Option<String>,
+}
+
+// Legacy structs for backward compatibility
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct ReceiveReq {
     pub dst_wh: Uuid,

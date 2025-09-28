@@ -1,1 +1,1 @@
-// ris-pacs-service src/infra/outbox/dispatcher.rs placeholder
+// Outbox dispatcher placeholder

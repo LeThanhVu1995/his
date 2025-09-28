@@ -1,6 +1,37 @@
-use uuid::Uuid; use sqlx::{Pool,Postgres}; use crate::domain::entities::crossmatch::Crossmatch;
-pub struct CrossmatchRepo<'a>{ pub db:&'a Pool<Postgres> }
-impl<'a> CrossmatchRepo<'a>{
-  pub async fn insert(&self, c:&Crossmatch)->anyhow::Result<()> { sqlx::query("INSERT INTO blood_crossmatches(id,request_id,unit_barcode,abo,rh,result,performed_by,note) VALUES($1,$2,$3,$4,$5,$6,$7,$8)").bind(c.id).bind(c.request_id).bind(&c.unit_barcode).bind(&c.abo).bind(&c.rh).bind(&c.result).bind(c.performed_by).bind(&c.note).execute(self.db).await?; Ok(()) }
-  pub async fn list_by_request(&self, req:Uuid)->anyhow::Result<Vec<Crossmatch>>{ Ok(sqlx::query_as::<_,Crossmatch>(r#"SELECT id,request_id,unit_barcode,abo,rh,result,performed_by,performed_at,note FROM blood_crossmatches WHERE request_id=$1 ORDER BY performed_at DESC"#).bind(req).fetch_all(self.db).await?) }
+use uuid::Uuid;
+use sqlx::{Pool, Postgres};
+use crate::domain::entities::crossmatch::Crossmatch;
+
+pub struct CrossmatchRepo<'a> {
+    pub db: &'a Pool<Postgres>,
+}
+
+impl<'a> CrossmatchRepo<'a> {
+    pub async fn insert(&self, c: &Crossmatch) -> anyhow::Result<()> {
+        sqlx::query(
+            "INSERT INTO bb_crossmatch(crossmatch_id, patient_id, unit_id, performed_at, result_code, performer_id, created_at, updated_at)
+             VALUES($1, $2, $3, $4, $5, $6, $7, $8)"
+        )
+        .bind(c.crossmatch_id)
+        .bind(c.patient_id)
+        .bind(c.unit_id)
+        .bind(c.performed_at)
+        .bind(&c.result_code)
+        .bind(c.performer_id)
+        .bind(c.created_at)
+        .bind(c.updated_at)
+        .execute(self.db)
+        .await?;
+        Ok(())
+    }
+
+    pub async fn list_by_patient(&self, patient_id: Uuid) -> anyhow::Result<Vec<Crossmatch>> {
+        Ok(sqlx::query_as::<_, Crossmatch>(
+            "SELECT crossmatch_id, patient_id, unit_id, performed_at, result_code, performer_id, created_at, updated_at
+             FROM bb_crossmatch WHERE patient_id = $1 ORDER BY performed_at DESC"
+        )
+        .bind(patient_id)
+        .fetch_all(self.db)
+        .await?)
+    }
 }

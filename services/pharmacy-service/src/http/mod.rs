@@ -2,9 +2,7 @@ use actix_web::{web, HttpResponse};
 use utoipa::{OpenApi, Modify};
 use utoipa::openapi::security::{Http, HttpAuthScheme, SecurityScheme};
 
-use crate::http::dto::medication_dto::{CreateMedicationReq, UpdateMedicationReq, MedicationQuery, MedicationRes};
-use crate::http::dto::prescription_dto::{CreatePrescriptionReq, UpdatePrescriptionReq, PrescriptionQuery, PrescriptionRes};
-use crate::http::dto::dispense_dto::{CreateDispenseReq, DispenseQuery, DispenseRes};
+// DTOs moved to domain/entities
 
 pub mod handlers;
 pub mod dto;
@@ -12,7 +10,7 @@ pub mod routes;
 
 #[derive(OpenApi)]
 #[openapi(
-    components(schemas(CreateMedicationReq, UpdateMedicationReq, MedicationQuery, MedicationRes, CreatePrescriptionReq, UpdatePrescriptionReq, PrescriptionQuery, PrescriptionRes, CreateDispenseReq, DispenseQuery, DispenseRes)),
+    components(schemas()),
     modifiers(&SecurityAddon)
 )]
 pub struct ApiDoc;

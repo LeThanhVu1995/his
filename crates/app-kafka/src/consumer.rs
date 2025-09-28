@@ -4,13 +4,12 @@ use std::time::Duration;
 use app_config::KafkaConfig;
 use app_error::AppError;
 use futures::StreamExt;
-use metrics::{describe_counter, increment_counter};
 use rdkafka::config::ClientConfig;
 use rdkafka::consumer::{CommitMode, Consumer, StreamConsumer};
 use rdkafka::message::{BorrowedMessage, Message};
 use rdkafka::TopicPartitionList;
 use serde::de::DeserializeOwned;
-use tokio_stream::wrappers::Stream;
+// use tokio_stream::Stream; // not needed; using rdkafka stream
 use tracing::{debug, error, info, instrument, warn};
 
 #[derive(Debug, Clone, Copy)]
@@ -23,7 +22,6 @@ pub enum ConsumeOutcome {
     SkipCommit,
 }
 
-#[derive(Clone)]
 pub struct KafkaConsumer {
     inner: StreamConsumer,
     auto_commit: bool,
@@ -80,27 +78,22 @@ impl KafkaConsumer {
     #[instrument(skip_all, fields(topics = ?topics))]
     pub async fn run<F, Fut>(&self, topics: &[&str], mut handler: F) -> Result<(), AppError>
     where
-        F: FnMut(BorrowedMessage<'_>) -> Fut + Send + 'static,
+        F: FnMut(&BorrowedMessage<'_>) -> Fut + Send + 'static,
         Fut: std::future::Future<Output = ConsumeOutcome> + Send,
     {
         self.subscribe(topics)?;
-        describe_counter!("kafka_consumed_total", "Consumed messages");
-        describe_counter!("kafka_consume_errors_total", "Consumer errors");
-        describe_counter!("kafka_commit_total", "Commits");
-
         let mut stream = self.inner.stream();
         while let Some(result) = stream.next().await {
             match result {
                 Ok(msg) => {
-                    increment_counter!("kafka_consumed_total", "topic" => msg.topic().to_string());
-                    let outcome = handler(msg.borrow()).await;
+                    // pass message reference to handler
+                    let outcome = handler(&msg).await;
                     match outcome {
                         ConsumeOutcome::Commit | ConsumeOutcome::SkipCommit => {
                             if let Err(e) = self.inner.commit_message(&msg, CommitMode::Async) {
-                                increment_counter!("kafka_consume_errors_total", "topic" => msg.topic().to_string());
                                 error!(error = %e, "commit failed");
                             } else {
-                                increment_counter!("kafka_commit_total", "topic" => msg.topic().to_string());
+                                // committed
                             }
                         }
                         ConsumeOutcome::Retry => {
@@ -109,7 +102,6 @@ impl KafkaConsumer {
                     }
                 }
                 Err(e) => {
-                    increment_counter!("kafka_consume_errors_total", "topic" => "unknown".to_string());
                     warn!(error = %e, "kafka poll error");
                     // ngủ ngắn để tránh tight loop
                     tokio::time::sleep(Duration::from_millis(200)).await;
@@ -122,6 +114,11 @@ impl KafkaConsumer {
     /// Helper: parse payload JSON thành `T`, trả None nếu không có payload hoặc lỗi parse.
     pub fn parse_json<T: DeserializeOwned>(msg: &BorrowedMessage<'_>) -> Option<T> {
         msg.payload().and_then(|b| serde_json::from_slice::<T>(b).ok())
+    }
+
+    /// Copy payload bytes into an owned Vec for async processing without lifetime ties
+    pub fn payload_bytes(msg: &BorrowedMessage<'_>) -> Option<Vec<u8>> {
+        msg.payload().map(|b| b.to_vec())
     }
 
     /// Truy cập StreamConsumer thô (nếu cần custom).

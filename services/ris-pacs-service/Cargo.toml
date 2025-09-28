@@ -1,4 +1,59 @@
 [package]
-name="ris-pacs-service"
-version="0.0.0"
-edition="2021"
+name = "ris-pacs-service"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "ris-pacs-service"
+path = "src/main.rs"
+
+[dependencies]
+# Web framework
+actix-web = { workspace = true }
+actix-web-validator = { workspace = true }
+
+# Database
+sqlx = { workspace = true, features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "migrate"] }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Async runtime
+tokio = { workspace = true, features = ["full"] }
+
+# Error handling
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# UUID
+uuid = { workspace = true, features = ["v4", "serde"] }
+
+# Date/time
+chrono = { workspace = true, features = ["serde"] }
+
+# Logging
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# Environment variables
+dotenvy = { workspace = true }
+
+# OpenAPI documentation
+utoipa = { workspace = true }
+utoipa-swagger-ui = { workspace = true }
+
+# HTTP client
+reqwest = { workspace = true }
+
+# Configuration
+app-config = { workspace = true }
+app-web = { workspace = true }
+app-auth = { workspace = true }
+app-telemetry = { workspace = true }
+
+# Validation
+validator = { workspace = true }
+
+# Async utilities
+futures-util = { workspace = true }

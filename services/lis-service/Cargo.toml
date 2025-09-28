@@ -28,9 +28,10 @@ chrono.workspace = true
 
 # Validation
 validator.workspace = true
+actix-web-validator.workspace = true
 
 # Database
-sqlx.workspace = true
+sqlx = { workspace = true, features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "json", "rust_decimal"] }
 
 # Async runtime
 tokio.workspace = true

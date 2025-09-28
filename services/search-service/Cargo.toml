@@ -25,6 +25,7 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 futures-util.workspace = true
 reqwest.workspace = true
+app-kafka = { path = "../../crates/app-kafka" }
 
 # Workspace crates
 app-auth.workspace = true

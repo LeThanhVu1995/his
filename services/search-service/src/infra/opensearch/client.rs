@@ -72,4 +72,16 @@ impl OsClient {
         }
         Ok(())
     }
+
+    pub async fn ping(&self) -> anyhow::Result<()> {
+        let res = self
+            .req(reqwest::Method::GET, "/")
+            .await
+            .send()
+            .await?;
+        if !res.status().is_success() {
+            anyhow::bail!(res.text().await?);
+        }
+        Ok(())
+    }
 }

@@ -1,6 +1,6 @@
 use uuid::Uuid;
 use crate::infrastructure::repositories::claim_repo::ClaimRepo;
-use crate::domain::entities::claim::{Claim, ClaimItem};
+use crate::domain::entities::claim::{InsClaim, InsClaimItem};
 
 pub struct ClaimSvc<'a> {
     pub repo: ClaimRepo<'a>,
@@ -24,59 +24,53 @@ impl<'a> ClaimSvc<'a> {
             total += qty * unit;
         }
 
-        let claim = Claim {
-            id,
-            claim_no: format!("CLM-{}", &id.to_string()[..8]),
-            patient_id: patient,
-            encounter_id: encounter,
-            member_id: member,
-            payer: payer.to_string(),
-            total_amount: total,
-            currency: "VND".into(),
+        let claim = InsClaim {
+            claim_id: id.to_string(),
+            encounter_id: encounter.map(|e| e.to_string()).unwrap_or_default(),
+            policy_id: member.to_string(), // Using member as policy_id for now
             status: "CREATED".into(),
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
+            total_claimed: Some(total),
+            total_approved: None,
+            submitted_at: None,
+            response_at: None,
+            response_code: None,
+            response_text: None,
+            signature_id: None,
         };
 
         sqlx::query(
-            r#"INSERT INTO claims(id,claim_no,patient_id,encounter_id,member_id,payer,total_amount,currency,status) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)"#
+            r#"INSERT INTO ins_claim(claim_id,encounter_id,policy_id,status,total_claimed) VALUES($1,$2,$3,$4,$5)"#
         )
-        .bind(claim.id)
-        .bind(&claim.claim_no)
-        .bind(claim.patient_id)
-        .bind(claim.encounter_id)
-        .bind(claim.member_id)
-        .bind(&claim.payer)
-        .bind(claim.total_amount)
-        .bind(&claim.currency)
+        .bind(&claim.claim_id)
+        .bind(&claim.encounter_id)
+        .bind(&claim.policy_id)
         .bind(&claim.status)
+        .bind(&claim.total_claimed)
         .execute(&mut *tx)
         .await?;
 
         for (code, qty, unit_price, desc) in items {
-            let it = ClaimItem {
-                id: Uuid::new_v4(),
-                claim_id: id,
-                code,
+            let it = InsClaimItem {
+                claim_item_id: Uuid::new_v4().to_string(),
+                claim_id: id.to_string(),
+                service_code: code,
                 description: desc,
-                qty,
-                unit_price,
-                amount: qty * unit_price,
-                coverage_rate: Some(100.0),
-                patient_pay: Some(0.0),
+                qty: Some(qty),
+                unit_price: Some(unit_price),
+                amount: Some(qty * unit_price),
+                approved_amount: None,
             };
 
             sqlx::query(
-                r#"INSERT INTO claim_items(id,claim_id,code,description,qty,unit_price,coverage_rate,patient_pay) VALUES($1,$2,$3,$4,$5,$6,$7,$8)"#
+                r#"INSERT INTO ins_claim_item(claim_item_id,claim_id,service_code,description,qty,unit_price,amount) VALUES($1,$2,$3,$4,$5,$6,$7)"#
             )
-            .bind(it.id)
-            .bind(it.claim_id)
-            .bind(&it.code)
+            .bind(&it.claim_item_id)
+            .bind(&it.claim_id)
+            .bind(&it.service_code)
             .bind(&it.description)
-            .bind(it.qty)
-            .bind(it.unit_price)
-            .bind(it.coverage_rate)
-            .bind(it.patient_pay)
+            .bind(&it.qty)
+            .bind(&it.unit_price)
+            .bind(&it.amount)
             .execute(&mut *tx)
             .await?;
         }

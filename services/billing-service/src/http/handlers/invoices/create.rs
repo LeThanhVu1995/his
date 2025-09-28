@@ -1,9 +1,8 @@
 use actix_web::{web, HttpResponse, post};
 use actix_web_validator::Json;
 use app_web::prelude::AuthUser;
-use crate::domain::services::billing_svc;
 use crate::http::dto::invoice_dto::{CreateInvoiceReq, InvoiceRes};
-use crate::infra::db::repositories::invoice_repo;
+use crate::http::handlers::common::create_billing_service;
 
 #[post("/api/v1/invoices:create")]
 #[utoipa::path(
@@ -17,33 +16,31 @@ pub async fn create_invoice(
     payload: Json<CreateInvoiceReq>,
     _user: AuthUser,
 ) -> actix_web::Result<HttpResponse> {
-    let id = billing_svc::generate_invoice(
-        &db,
-        payload.patient_id,
+    let billing_service = create_billing_service(&db);
+
+    let invoice_id = billing_service.create_invoice_from_charges(
         payload.encounter_id,
-        payload.charge_ids.clone(),
-        payload.discount.clone(),
-        payload.tax.clone(),
-        payload.note.clone(),
+        payload.patient_id,
+        "VND".to_string(),
+        None, // due_date
     )
     .await
     .map_err(|e| {
-        tracing::error!(?e, "generate invoice");
+        tracing::error!(?e, "create invoice from charges");
         crate::error::AppError::Internal("DB".into())
     })?;
 
-    let invoice = invoice_repo::find_by_id(&db, id)
-        .await
+    let invoice = billing_service.get_invoice(invoice_id).await
         .map_err(|e| {
-            tracing::error!(?e, "find invoice");
+            tracing::error!(?e, "get invoice");
             crate::error::AppError::Internal("DB".into())
         })?
         .ok_or(crate::error::AppError::NotFound)?;
 
     let res = InvoiceRes {
-        id: invoice.id,
-        invoice_no: invoice.invoice_no,
-        total: invoice.total,
+        id: invoice.invoice_id,
+        invoice_no: format!("INV-{}", &invoice.invoice_id.to_string()[..8]),
+        total: invoice.total_amount,
         status: invoice.status,
     };
 

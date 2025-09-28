@@ -17,6 +17,13 @@ pub mod perm {
     pub const RESULT_ENTER: &str = "his.lab.result.enter";    // nhập giá trị
     pub const RESULT_VERIFY: &str = "his.lab.result.verify";   // duyệt kết quả
     pub const RESULT_RELEASE: &str = "his.lab.result.release";  // phát hành
+
+    // Lab Orders (aligned with root.sql)
+    pub const LAB_ORDER_CREATE: &str = "his.lab.order.create";
+    pub const LAB_ORDER_GET: &str = "his.lab.order.get";
+    pub const LAB_ORDER_LIST: &str = "his.lab.order.list";
+    pub const LAB_ORDER_UPDATE: &str = "his.lab.order.update";
+    pub const LAB_ORDER_DELETE: &str = "his.lab.order.delete";
 }
 
 #[derive(serde::Serialize)]
@@ -42,5 +49,10 @@ pub fn permission_catalog(svc: &str) -> Vec<PermissionDef> {
         PermissionDef { name: RESULT_ENTER.into(), description: "Enter result values".into(), service: svc.into() },
         PermissionDef { name: RESULT_VERIFY.into(), description: "Verify results".into(), service: svc.into() },
         PermissionDef { name: RESULT_RELEASE.into(), description: "Release results".into(), service: svc.into() },
+        PermissionDef { name: LAB_ORDER_CREATE.into(), description: "Create lab order".into(), service: svc.into() },
+        PermissionDef { name: LAB_ORDER_GET.into(), description: "Get lab order".into(), service: svc.into() },
+        PermissionDef { name: LAB_ORDER_LIST.into(), description: "List lab orders".into(), service: svc.into() },
+        PermissionDef { name: LAB_ORDER_UPDATE.into(), description: "Update lab order".into(), service: svc.into() },
+        PermissionDef { name: LAB_ORDER_DELETE.into(), description: "Delete lab order".into(), service: svc.into() },
     ]
 }

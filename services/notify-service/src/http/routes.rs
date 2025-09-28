@@ -43,4 +43,43 @@ pub fn api_scope() -> Scope {
                 .wrap(RequirePermission::new(perm::WEBHOOK_TRIGGER))
                 .route(web::post().to(crate::http::handlers::webhooks::trigger::trigger))
         )
+        // Notifications (aligned with root.sql)
+        .service(
+            web::resource("/api/v1/notify/notifications")
+                .wrap(RequirePermission::new(perm::NOTIFICATION_LIST))
+                .route(web::get().to(crate::http::handlers::notifications::list_notifications))
+                .route(web::post().to(crate::http::handlers::notifications::create_notification))
+        )
+        .service(
+            web::resource("/api/v1/notify/notifications/{id}")
+                .wrap(RequirePermission::new(perm::NOTIFICATION_GET))
+                .route(web::get().to(crate::http::handlers::notifications::get_notification))
+                .route(web::put().to(crate::http::handlers::notifications::update_notification))
+                .route(web::delete().to(crate::http::handlers::notifications::delete_notification))
+        )
+        .service(
+            web::resource("/api/v1/notify/notifications/{id}/targets")
+                .wrap(RequirePermission::new(perm::NOTIFICATION_ASSIGN))
+                .route(web::post().to(crate::http::handlers::notifications::assign_notification))
+        )
+        .service(
+            web::resource("/api/v1/notify/notifications/{id}/targets/bulk")
+                .wrap(RequirePermission::new(perm::NOTIFICATION_ASSIGN))
+                .route(web::post().to(crate::http::handlers::notifications::assign_notification_bulk))
+        )
+        .service(
+            web::resource("/api/v1/notify/users/{user_id}/notifications")
+                .wrap(RequirePermission::new(perm::NOTIFICATION_READ))
+                .route(web::get().to(crate::http::handlers::notifications::get_user_notifications))
+        )
+        .service(
+            web::resource("/api/v1/notify/users/{user_id}/notifications/stats")
+                .wrap(RequirePermission::new(perm::NOTIFICATION_READ))
+                .route(web::get().to(crate::http::handlers::notifications::get_user_notification_stats))
+        )
+        .service(
+            web::resource("/api/v1/notify/users/{user_id}/notifications/{notification_id}/read")
+                .wrap(RequirePermission::new(perm::NOTIFICATION_READ))
+                .route(web::put().to(crate::http::handlers::notifications::mark_notification_read))
+        )
 }

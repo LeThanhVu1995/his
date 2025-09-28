@@ -389,3 +389,176 @@ impl<'a> MovementRepo<'a> {
         Ok((rows, total))
     }
 }
+// UOM Repository
+pub struct UomRepo<'a> {
+    pub db: &'a sqlx::Pool<sqlx::Postgres>,
+}
+
+impl<'a> UomRepo<'a> {
+    pub async fn create(&self, u: &crate::domain::models::Uom) -> anyhow::Result<()> {
+        sqlx::query(
+            r#"INSERT INTO inv_uom(id,code,name,created_at,updated_at) VALUES($1,$2,$3,$4,$5)"#
+        )
+        .bind(&u.id)
+        .bind(&u.code)
+        .bind(&u.name)
+        .bind(&u.created_at)
+        .bind(&u.updated_at)
+        .execute(self.db)
+        .await?;
+        Ok(())
+    }
+
+    pub async fn list_paged(&self, q: Option<&str>, page: i64, size: i64) -> anyhow::Result<(Vec<crate::domain::models::Uom>, i64)> {
+        let offset = (page - 1) * size;
+        let (rows, total) = if let Some(query) = q {
+            let r = sqlx::query_as::<_, crate::domain::models::Uom>(
+                r#"SELECT * FROM inv_uom WHERE code ILIKE $1 OR name ILIKE $1 ORDER BY code LIMIT $2 OFFSET $3"#
+            )
+            .bind(format!("%{}%", query))
+            .bind(size)
+            .bind(offset)
+            .fetch_all(self.db)
+            .await?;
+            let t = sqlx::query_scalar::<_, i64>(
+                r#"SELECT COUNT(1) FROM inv_uom WHERE code ILIKE $1 OR name ILIKE $1"#
+            )
+            .bind(format!("%{}%", query))
+            .fetch_one(self.db)
+            .await?;
+            (r, t)
+        } else {
+            let r = sqlx::query_as::<_, crate::domain::models::Uom>(
+                r#"SELECT * FROM inv_uom ORDER BY code LIMIT $1 OFFSET $2"#
+            )
+            .bind(size)
+            .bind(offset)
+            .fetch_all(self.db)
+            .await?;
+            let t = sqlx::query_scalar::<_, i64>(
+                r#"SELECT COUNT(1) FROM inv_uom"#
+            )
+            .fetch_one(self.db)
+            .await?;
+            (r, t)
+        };
+
+        Ok((rows, total))
+    }
+
+    pub async fn update(&self, id: uuid::Uuid, name: Option<&str>) -> anyhow::Result<Option<crate::domain::models::Uom>> {
+        if let Some(name) = name {
+            sqlx::query(
+                r#"UPDATE inv_uom SET name=$1, updated_at=$2 WHERE id=$3"#
+            )
+            .bind(name)
+            .bind(chrono::Utc::now())
+            .bind(id)
+            .execute(self.db)
+            .await?;
+        }
+
+        let rec = sqlx::query_as::<_, crate::domain::models::Uom>(
+            r#"SELECT * FROM inv_uom WHERE id=$1"#
+        )
+        .bind(id)
+        .fetch_optional(self.db)
+        .await?;
+
+        Ok(rec)
+    }
+}
+
+// Supplier Repository
+pub struct SupplierRepo<'a> {
+    pub db: &'a sqlx::Pool<sqlx::Postgres>,
+}
+
+impl<'a> SupplierRepo<'a> {
+    pub async fn create(&self, s: &crate::domain::models::Supplier) -> anyhow::Result<()> {
+        sqlx::query(
+            r#"INSERT INTO inv_suppliers(id,code,name,phone,email,address_line1,address_line2,city,province,country,postal_code,tax_id,status,created_at,updated_at,created_by,updated_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)"#
+        )
+        .bind(&s.id)
+        .bind(&s.code)
+        .bind(&s.name)
+        .bind(&s.phone)
+        .bind(&s.email)
+        .bind(&s.address_line1)
+        .bind(&s.address_line2)
+        .bind(&s.city)
+        .bind(&s.province)
+        .bind(&s.country)
+        .bind(&s.postal_code)
+        .bind(&s.tax_id)
+        .bind(&s.status)
+        .bind(&s.created_at)
+        .bind(&s.updated_at)
+        .bind(&s.created_by)
+        .bind(&s.updated_by)
+        .execute(self.db)
+        .await?;
+        Ok(())
+    }
+
+    pub async fn list_paged(&self, q: Option<&str>, page: i64, size: i64) -> anyhow::Result<(Vec<crate::domain::models::Supplier>, i64)> {
+        let offset = (page - 1) * size;
+        let (rows, total) = if let Some(query) = q {
+            let r = sqlx::query_as::<_, crate::domain::models::Supplier>(
+                r#"SELECT * FROM inv_suppliers WHERE code ILIKE $1 OR name ILIKE $1 ORDER BY code LIMIT $2 OFFSET $3"#
+            )
+            .bind(format!("%{}%", query))
+            .bind(size)
+            .bind(offset)
+            .fetch_all(self.db)
+            .await?;
+            let t = sqlx::query_scalar::<_, i64>(
+                r#"SELECT COUNT(1) FROM inv_suppliers WHERE code ILIKE $1 OR name ILIKE $1"#
+            )
+            .bind(format!("%{}%", query))
+            .fetch_one(self.db)
+            .await?;
+            (r, t)
+        } else {
+            let r = sqlx::query_as::<_, crate::domain::models::Supplier>(
+                r#"SELECT * FROM inv_suppliers ORDER BY code LIMIT $1 OFFSET $2"#
+            )
+            .bind(size)
+            .bind(offset)
+            .fetch_all(self.db)
+            .await?;
+            let t = sqlx::query_scalar::<_, i64>(
+                r#"SELECT COUNT(1) FROM inv_suppliers"#
+            )
+            .fetch_one(self.db)
+            .await?;
+            (r, t)
+        };
+
+        Ok((rows, total))
+    }
+
+    pub async fn update(&self, id: uuid::Uuid, name: Option<&str>, phone: Option<&str>, email: Option<&str>) -> anyhow::Result<Option<crate::domain::models::Supplier>> {
+        if name.is_some() || phone.is_some() || email.is_some() {
+            sqlx::query(
+                r#"UPDATE inv_suppliers SET name=COALESCE($1,name), phone=COALESCE($2,phone), email=COALESCE($3,email), updated_at=$4 WHERE id=$5"#
+            )
+            .bind(name)
+            .bind(phone)
+            .bind(email)
+            .bind(chrono::Utc::now())
+            .bind(id)
+            .execute(self.db)
+            .await?;
+        }
+
+        let rec = sqlx::query_as::<_, crate::domain::models::Supplier>(
+            r#"SELECT * FROM inv_suppliers WHERE id=$1"#
+        )
+        .bind(id)
+        .fetch_optional(self.db)
+        .await?;
+
+        Ok(rec)
+    }
+}

@@ -1,5 +1,5 @@
 use actix_web::{web, HttpResponse};
-use actix_web_validator::{Query, Json};
+use actix_web::web::{Query, Json};
 use uuid::Uuid;
 use crate::domain::repo::WarehouseRepo;
 use crate::dto::warehouse_dto::{CreateWarehouseReq, UpdateWarehouseReq, WarehouseQuery, WarehouseRes};
@@ -63,8 +63,20 @@ pub async fn create_warehouse(
         code: payload.code.clone(),
         name: payload.name.clone(),
         r#type: payload.r#type.clone().unwrap_or_else(|| "MAIN".into()),
+        facility_id: None,
+        address_line1: None,
+        address_line2: None,
+        city: None,
+        province: None,
+        country: None,
+        postal_code: None,
+        status: "ACTIVE".to_string(),
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
+        created_by: None,
+        updated_by: None,
+        deleted_at: None,
+        deleted_by: None,
     };
 
     WarehouseRepo { db: &db }.create(&w).await

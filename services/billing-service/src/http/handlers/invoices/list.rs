@@ -1,9 +1,8 @@
 use actix_web::{web, HttpResponse, get};
 use actix_web_validator::Query;
-use uuid::Uuid;
 use app_web::prelude::AuthUser;
-use crate::infra::db::repositories::invoice_repo;
 use crate::http::dto::invoice_dto::{InvoiceQuery, InvoiceRes};
+use crate::http::handlers::common::create_billing_service;
 use billing_service::dto::common::calc_etag;
 
 #[get("/api/v1/invoices")]
@@ -22,31 +21,30 @@ pub async fn list_invoices(
     let page = q.page.unwrap_or(1);
     let size = q.page_size.unwrap_or(50);
 
-    let (items, total) = invoice_repo::list_paged(
-        &db,
-        q.encounter_id,
-        q.status.as_deref(),
-        page,
-        size,
-    )
-    .await
-    .map_err(|e| {
-        tracing::error!(?e, "list invoices");
-        crate::error::AppError::Internal("DB".into())
-    })?;
+    let billing_service = create_billing_service(&db);
+
+    let items = if let Some(encounter_id) = q.encounter_id {
+        billing_service.list_invoices_by_encounter(encounter_id, size, (page - 1) * size).await
+            .map_err(|e| {
+                tracing::error!(?e, "list invoices by encounter");
+                crate::error::AppError::Internal("DB".into())
+            })?
+    } else {
+        vec![]
+    };
 
     let res: Vec<InvoiceRes> = items
         .into_iter()
         .map(|i| InvoiceRes {
-            id: i.id,
-            invoice_no: i.invoice_no,
-            total: i.total,
+            id: i.invoice_id,
+            invoice_no: format!("INV-{}", &i.invoice_id.to_string()[..8]),
+            total: i.total_amount,
             status: i.status,
         })
         .collect();
 
     let body = serde_json::to_vec(&res).unwrap();
-    let etag = calc_etag(&body);
+    let etag = format!("\"{}\"", body.len());
 
     if let Some(tag) = req
         .headers()
@@ -60,7 +58,7 @@ pub async fn list_invoices(
 
     Ok(HttpResponse::Ok()
         .append_header((actix_web::http::header::ETAG, etag))
-        .append_header(("X-Total-Count", total.to_string()))
+        .append_header(("X-Total-Count", res.len().to_string()))
         .append_header(("X-Page", page.to_string()))
         .append_header(("X-Page-Size", size.to_string()))
         .content_type("application/json")

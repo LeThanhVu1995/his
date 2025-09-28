@@ -2,7 +2,7 @@ mod config;
 mod telemetry;
 mod error;
 mod security;
-mod infrastructure;
+mod infra;
 mod domain;
 mod dto;
 mod http;

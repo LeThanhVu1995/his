@@ -1,59 +1,45 @@
-use actix_web::{web, HttpResponse};
-use actix_web_validator::Json;
+use actix_web::{web, HttpResponse, Result};
+use actix_web::web::Json;
+use validator::Validate;
 
 use app_web::prelude::AuthUser;
-use crate::domain::service::PharmacyService;
-use crate::http::dto::dispense_dto::{CreateDispenseReq, DispenseRes};
-
+use crate::domain::entities::dispense::CreateDispenseRequest;
+use crate::domain::repositories::DispenseRepo;
 
 #[utoipa::path(
     post,
     path = "/api/v1/dispenses:create",
-    request_body = CreateDispenseReq,
+    request_body = CreateDispenseRequest,
     responses(
-        (status = 201, description = "Dispense created successfully", body = DispenseRes),
-        (status = 400, description = "Bad request"),
+        (status = 201, description = "Dispense created successfully", body = Dispense),
+        (status = 400, description = "Invalid input"),
         (status = 500, description = "Internal server error")
-    ),
-    security(("bearer_auth" = []))
+    )
 )]
 pub async fn create_dispense(
     db: web::Data<sqlx::Pool<sqlx::Postgres>>,
-    payload: Json<CreateDispenseReq>,
-    _user: AuthUser,
-) -> actix_web::Result<HttpResponse> {
-    let svc = PharmacyService {
-        meds: crate::domain::repositories::MedRepo { db: &db },
-        presc: crate::domain::repositories::PrescriptionRepo { db: &db },
-        items: crate::domain::repositories::PrescriptionItemRepo { db: &db },
-        disp: crate::domain::repositories::DispenseRepo { db: &db },
-    };
+    body: Json<CreateDispenseRequest>,
+    auth_user: AuthUser,
+) -> Result<HttpResponse> {
+    if let Err(e) = body.validate() {
+        return Err(crate::error::AppError::BadRequest(e.to_string()).into());
+    }
 
-    let id = svc
-        .create_dispense(payload.prescription_id, None)
-        .await
+    let repo = DispenseRepo { db: &db };
+    let new_dispense = repo.create(&body).await
         .map_err(|e| {
             tracing::error!(?e, "create dispense");
-            crate::error::AppError::Internal("DB".into())
+            crate::error::AppError::Internal("Failed to create dispense".into())
         })?;
 
-    let repo = crate::domain::repositories::DispenseRepo { db: &db };
-    let d = repo
-        .find(id)
-        .await
-        .map_err(|e| {
-            tracing::error!(?e, "find dispense");
-            crate::error::AppError::Internal("DB".into())
-        })?
-        .ok_or(crate::error::AppError::NotFound)?;
+    // Create dispense items
+    for item in &body.items {
+        repo.create_item(new_dispense.dispense_id, item).await
+            .map_err(|e| {
+                tracing::error!(?e, "create dispense item");
+                crate::error::AppError::Internal("Failed to create dispense item".into())
+            })?;
+    }
 
-    let res = DispenseRes {
-        id: d.id,
-        prescription_id: d.prescription_id,
-        disp_no: d.disp_no,
-        dispensed_by: d.dispensed_by,
-        status: d.status,
-    };
-
-    Ok(HttpResponse::Created().json(res))
+    Ok(HttpResponse::Created().json(new_dispense))
 }

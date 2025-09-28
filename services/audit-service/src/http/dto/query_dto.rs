@@ -1,13 +1,31 @@
 use serde::Deserialize;
-use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
-pub struct Page { pub page: Option<i64>, pub page_size: Option<i64> }
+pub struct Page {
+    pub page: Option<i64>,
+    pub page_size: Option<i64>
+}
 
 #[derive(Debug, Deserialize)]
-pub struct ActorQuery { pub actor_id: Uuid, pub page: Option<i64>, pub page_size: Option<i64> }
+pub struct UserQuery {
+    pub user_id: String,
+    pub page: Option<i64>,
+    pub page_size: Option<i64>
+}
 
 #[derive(Debug, Deserialize)]
-pub struct EntityQuery { pub entity_type: String, pub entity_id: Uuid, pub page: Option<i64>, pub page_size: Option<i64> }
+pub struct EntityQuery {
+    pub entity_name: String,
+    pub entity_id: String,
+    pub page: Option<i64>,
+    pub page_size: Option<i64>
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ActionQuery {
+    pub action: String,
+    pub page: Option<i64>,
+    pub page_size: Option<i64>
+}
 
 

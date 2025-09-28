@@ -1,1 +1,1 @@
-// emr-service error.rs placeholder
+pub use app_error::AppError;

@@ -4,15 +4,15 @@ use actix_web::{
 };
 use futures_util::future::LocalBoxFuture;
 use std::rc::Rc;
-use crate::error::AppError;
-use crate::security::auth_user::AuthUser;
+// use crate::error::AppError;
+// use crate::security::auth_user::AuthUser;
 
 pub struct RequirePermission {
     perm: &'static str,
 }
 
 impl RequirePermission {
-    pub fn new(p: &'static str) -> Self {
+    pub fn _new(p: &'static str) -> Self {
         Self { perm: p }
     }
 }
@@ -54,7 +54,7 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let svc = self.service.clone();
-        let needed = self.perm;
+        let _needed = self.perm;
         Box::pin(async move {
             // For now, always allow - this would be implemented with proper auth middleware
             // let user = req.extensions().get::<AuthUser>()

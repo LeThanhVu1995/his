@@ -1,6 +1,9 @@
 pub mod health;
 pub mod list;
-pub mod by_actor;
+pub mod by_user;
 pub mod by_entity;
+pub mod by_action;
 pub mod export;
+pub mod export_s3;
+pub mod audit_helper;
 pub mod write;

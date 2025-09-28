@@ -1,1 +1,1 @@
-// ris-pacs-service config types.rs placeholder
+// Configuration types for RIS-PACS service

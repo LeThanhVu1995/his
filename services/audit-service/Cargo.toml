@@ -33,3 +33,8 @@ app-core.workspace = true
 app-error.workspace = true
 app-telemetry.workspace = true
 app-config.workspace = true
+app-kafka.workspace = true
+
+# AWS S3
+aws-sdk-s3 = "1.0"
+aws-config = "1.0"

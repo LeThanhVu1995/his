@@ -11,8 +11,8 @@ pub struct Settings {
     pub iam_service_base_url: Option<String>,
     pub iam_service_token: Option<String>,
     // Kafka
-    pub kafka_brokers: Option<String>,
-    pub kafka_client_id: Option<String>,
+    pub _kafka_brokers: Option<String>,
+    pub _kafka_client_id: Option<String>,
 }
 
 impl Settings {

@@ -37,4 +37,32 @@ pub fn api_scope() -> Scope {
                 .route(web::put().to(handlers::codes::update_code))
                 .route(web::delete().to(handlers::codes::delete_code))
         )
+        // Organization Management
+        .service(
+            web::resource("/api/v1/master/hospitals")
+                .route(web::get().to(handlers::organization::list_hospitals))
+                .route(web::post().to(handlers::organization::create_hospital))
+        )
+        .service(
+            web::resource("/api/v1/master/hospitals/{id}")
+                .route(web::get().to(handlers::organization::get_hospital))
+                .route(web::put().to(handlers::organization::update_hospital))
+        )
+        .service(
+            web::resource("/api/v1/master/facilities")
+                .route(web::get().to(handlers::organization::list_facilities))
+                .route(web::post().to(handlers::organization::create_facility))
+        )
+        // Inventory Management
+        .service(
+            web::resource("/api/v1/master/uoms")
+                .route(web::get().to(handlers::inventory::list_uoms))
+                .route(web::post().to(handlers::inventory::create_uom))
+        )
+        .service(
+            web::resource("/api/v1/master/uoms/{id}")
+                .route(web::get().to(handlers::inventory::get_uom))
+                .route(web::put().to(handlers::inventory::update_uom))
+                .route(web::delete().to(handlers::inventory::delete_uom))
+        )
 }

@@ -15,12 +15,12 @@ pub struct EditReportReq {
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct VerifyReportReq {
-    pub note: Option<String>,
+    pub _note: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct FinalizeReportReq {
-    pub note: Option<String>,
+    pub _note: Option<String>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]

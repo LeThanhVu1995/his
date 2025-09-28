@@ -1,1 +1,2 @@
--- or-cssd-service 20250914_000002_procedures.sql placeholder
+-- This migration is kept for backward compatibility but content moved to or_schedules.sql
+-- OR procedures are managed through or_case table

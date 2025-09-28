@@ -11,7 +11,7 @@ edition = "2021"
 
 [workspace.dependencies]
 actix-web = "4"
-actix-web-validator = "5"
+actix-web-validator = "4"
 actix-cors = "0.7"
 actix-governor = "0.5"
 serde = { version = "1", features = ["derive"] }

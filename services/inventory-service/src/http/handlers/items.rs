@@ -1,9 +1,8 @@
 use actix_web::{web, HttpResponse};
-use actix_web_validator::{Query, Json};
+use actix_web::web::{Query, Json};
 use uuid::Uuid;
 use crate::domain::repo::ItemRepo;
 use crate::dto::item_dto::{CreateItemReq, UpdateItemReq, ItemQuery, ItemRes};
-use crate::dto::common::calc_etag;
 
 // #[utoipa::path(
 //     get,
@@ -18,18 +17,18 @@ use crate::dto::common::calc_etag;
 //     )
 // )]
 pub async fn list_items(
-    req: actix_web::HttpRequest,
     db: web::Data<sqlx::Pool<sqlx::Postgres>>,
-    q: Query<ItemQuery>,
+    query: Query<ItemQuery>,
 ) -> actix_web::Result<HttpResponse> {
-    let page = q.page.unwrap_or(1);
-    let size = q.page_size.unwrap_or(50);
+    let page = query.page.unwrap_or(1);
+    let page_size = query.page_size.unwrap_or(20);
 
-    let repo = ItemRepo { db: &db };
-    let (items, total) = repo.search_paged(q.q.as_deref(), page, size).await
+    let (items, total) = ItemRepo { db: &db }
+        .search_paged(query.q.as_deref(), page, page_size)
+        .await
         .map_err(|_| crate::error::AppError::Internal("DB".into()))?;
 
-    let res: Vec<ItemRes> = items.into_iter().map(|i| ItemRes {
+    let response: Vec<ItemRes> = items.into_iter().map(|i| ItemRes {
         id: i.id,
         code: i.code,
         name: i.name,
@@ -38,23 +37,7 @@ pub async fn list_items(
         is_consumable: i.is_consumable,
     }).collect();
 
-    let body = serde_json::to_vec(&res).unwrap();
-    let etag = calc_etag(&body);
-
-    if let Some(tag) = req.headers().get(actix_web::http::header::IF_NONE_MATCH)
-        .and_then(|h| h.to_str().ok()) {
-        if tag == etag {
-            return Ok(HttpResponse::NotModified().finish());
-        }
-    }
-
-    Ok(HttpResponse::Ok()
-        .append_header((actix_web::http::header::ETAG, etag))
-        .append_header(("X-Total-Count", total.to_string()))
-        .append_header(("X-Page", page.to_string()))
-        .append_header(("X-Page-Size", size.to_string()))
-        .content_type("application/json")
-        .body(body))
+    Ok(HttpResponse::Ok().json(response))
 }
 
 // #[utoipa::path(
@@ -70,27 +53,31 @@ pub async fn create_item(
     payload: Json<CreateItemReq>,
 ) -> actix_web::Result<HttpResponse> {
     let id = Uuid::new_v4();
-    let i = crate::domain::models::Item {
+    let item = crate::domain::models::Item {
         id,
         code: payload.code.clone(),
         name: payload.name.clone(),
         uom: payload.uom.clone(),
+        base_uom_id: None,
+        category_code: None,
         is_med: payload.is_med.unwrap_or(false),
-        is_consumable: payload.is_consumable.unwrap_or(true),
+        is_consumable: payload.is_consumable.unwrap_or(false),
+        is_lot_tracked: true,
+        is_expirable: true,
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
 
-    ItemRepo { db: &db }.create(&i).await
+    ItemRepo { db: &db }.create(&item).await
         .map_err(|_| crate::error::AppError::Internal("DB".into()))?;
 
     Ok(HttpResponse::Created().json(ItemRes {
         id,
-        code: i.code,
-        name: i.name,
-        uom: i.uom,
-        is_med: i.is_med,
-        is_consumable: i.is_consumable,
+        code: item.code,
+        name: item.name,
+        uom: item.uom,
+        is_med: item.is_med,
+        is_consumable: item.is_consumable,
     }))
 }
 

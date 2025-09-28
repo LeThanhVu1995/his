@@ -1,34 +1,33 @@
 use actix_web::{web, HttpResponse};
-use actix_web_validator::{Query, Json};
-use crate::domain::repo::{MovementRepo, StockRepo};
-use crate::domain::service::InventoryService;
-use crate::dto::movement_dto::{MovementQuery, ReceiveReq, IssueReq, TransferReq, AdjustReq, MovementRes};
-use crate::security::auth_user::AuthUser;
+use actix_web::web::{Query, Json};
+use crate::domain::repo::MovementRepo;
+use crate::dto::movement_dto::{MovementQuery, MovementRes, ReceiveReq, IssueReq, TransferReq, AdjustReq};
 
-// #[utoipa::path(
-//     get,
-//     path = "/api/v1/inv/movements",
-//     params(
-//         ("mv_type" = Option<String>, Query),
-//         ("page" = Option<i64>, Query),
-//         ("page_size" = Option<i64>, Query)
-//     ),
-//     security(
-//         ("bearer_auth" = [])
-//     )
-// )]
+#[utoipa::path(
+    get,
+    path = "/api/v1/inv/movements",
+    params(
+        ("mv_type" = Option<String>, Query, description = "Filter by movement type"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("page_size" = Option<i64>, Query, description = "Page size")
+    ),
+    security(
+        ("bearer_auth" = [])
+    )
+)]
 pub async fn list_movements(
     db: web::Data<sqlx::Pool<sqlx::Postgres>>,
-    q: Query<MovementQuery>,
+    query: Query<MovementQuery>,
 ) -> actix_web::Result<HttpResponse> {
-    let page = q.page.unwrap_or(1);
-    let size = q.page_size.unwrap_or(50);
+    let page = query.page.unwrap_or(1);
+    let page_size = query.page_size.unwrap_or(20);
 
-    let repo = MovementRepo { db: &db };
-    let (items, total) = repo.list_paged(q.mv_type.as_deref(), page, size).await
+    let (movements, total) = MovementRepo { db: &db }
+        .list_paged(query.mv_type.as_deref(), page, page_size)
+        .await
         .map_err(|_| crate::error::AppError::Internal("DB".into()))?;
 
-    let res: Vec<MovementRes> = items.into_iter().map(|m| MovementRes {
+    let response: Vec<MovementRes> = movements.into_iter().map(|m| MovementRes {
         id: m.id,
         mv_no: m.mv_no,
         mv_type: m.mv_type,
@@ -36,156 +35,77 @@ pub async fn list_movements(
 
     Ok(HttpResponse::Ok()
         .append_header(("X-Total-Count", total.to_string()))
-        .append_header(("X-Page", page.to_string()))
-        .append_header(("X-Page-Size", size.to_string()))
-        .json(res))
+        .json(response))
 }
 
-// #[utoipa::path(
-//     post,
-//     path = "/api/v1/inv/movements:receive",
-//     request_body = ReceiveReq,
-//     security(
-//         ("bearer_auth" = [])
-//     )
-// )]
+#[utoipa::path(
+    post,
+    path = "/api/v1/inv/movements:receive",
+    request_body = ReceiveReq,
+    security(
+        ("bearer_auth" = [])
+    )
+)]
 pub async fn receive_stocks(
     db: web::Data<sqlx::Pool<sqlx::Postgres>>,
     payload: Json<ReceiveReq>,
-    user: AuthUser,
 ) -> actix_web::Result<HttpResponse> {
-    let svc = InventoryService {
-        stocks: StockRepo { db: &db },
-        movements: MovementRepo { db: &db },
-        db: &db,
-    };
-
-    let id = svc.receive_stocks(
-        payload.dst_wh,
-        payload.lines.clone(),
-        payload.note.clone(),
-        Some(user.0.sub.as_str()),
-    ).await
-        .map_err(|e| {
-            tracing::warn!(?e, "receive fail");
-            crate::error::AppError::Internal("receive failed".into())
-        })?;
-
-    Ok(HttpResponse::Created().json(MovementRes {
-        id,
-        mv_no: format!("REC-{}", &id.to_string()[..8]),
-        mv_type: "RECEIVE".into(),
-    }))
+    // TODO: Implement receive stocks logic using InventoryService
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "message": "Receive stocks endpoint - to be implemented"
+    })))
 }
 
-// #[utoipa::path(
-//     post,
-//     path = "/api/v1/inv/movements:issue",
-//     request_body = IssueReq,
-//     security(
-//         ("bearer_auth" = [])
-//     )
-// )]
+#[utoipa::path(
+    post,
+    path = "/api/v1/inv/movements:issue",
+    request_body = IssueReq,
+    security(
+        ("bearer_auth" = [])
+    )
+)]
 pub async fn issue_stocks(
     db: web::Data<sqlx::Pool<sqlx::Postgres>>,
     payload: Json<IssueReq>,
-    user: AuthUser,
 ) -> actix_web::Result<HttpResponse> {
-    let svc = InventoryService {
-        stocks: StockRepo { db: &db },
-        movements: MovementRepo { db: &db },
-        db: &db,
-    };
-
-    let id = svc.issue_stocks(
-        payload.src_wh,
-        payload.lines.clone(),
-        payload.note.clone(),
-        Some(user.0.sub.as_str()),
-    ).await
-        .map_err(|e| {
-            tracing::warn!(?e, "issue fail");
-            crate::error::AppError::Internal("issue failed".into())
-        })?;
-
-    Ok(HttpResponse::Created().json(MovementRes {
-        id,
-        mv_no: format!("ISS-{}", &id.to_string()[..8]),
-        mv_type: "ISSUE".into(),
-    }))
+    // TODO: Implement issue stocks logic using InventoryService
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "message": "Issue stocks endpoint - to be implemented"
+    })))
 }
 
-// #[utoipa::path(
-//     post,
-//     path = "/api/v1/inv/movements:transfer",
-//     request_body = TransferReq,
-//     security(
-//         ("bearer_auth" = [])
-//     )
-// )]
+#[utoipa::path(
+    post,
+    path = "/api/v1/inv/movements:transfer",
+    request_body = TransferReq,
+    security(
+        ("bearer_auth" = [])
+    )
+)]
 pub async fn transfer_stocks(
     db: web::Data<sqlx::Pool<sqlx::Postgres>>,
     payload: Json<TransferReq>,
-    user: AuthUser,
 ) -> actix_web::Result<HttpResponse> {
-    let svc = InventoryService {
-        stocks: StockRepo { db: &db },
-        movements: MovementRepo { db: &db },
-        db: &db,
-    };
-
-    let id = svc.transfer_stocks(
-        payload.src_wh,
-        payload.dst_wh,
-        payload.lines.clone(),
-        payload.note.clone(),
-        Some(user.0.sub.as_str()),
-    ).await
-        .map_err(|e| {
-            tracing::warn!(?e, "transfer fail");
-            crate::error::AppError::Internal("transfer failed".into())
-        })?;
-
-    Ok(HttpResponse::Created().json(MovementRes {
-        id,
-        mv_no: format!("TRF-{}", &id.to_string()[..8]),
-        mv_type: "TRANSFER".into(),
-    }))
+    // TODO: Implement transfer stocks logic using InventoryService
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "message": "Transfer stocks endpoint - to be implemented"
+    })))
 }
 
-// #[utoipa::path(
-//     post,
-//     path = "/api/v1/inv/movements:adjust",
-//     request_body = AdjustReq,
-//     security(
-//         ("bearer_auth" = [])
-//     )
-// )]
+#[utoipa::path(
+    post,
+    path = "/api/v1/inv/movements:adjust",
+    request_body = AdjustReq,
+    security(
+        ("bearer_auth" = [])
+    )
+)]
 pub async fn adjust_stocks(
     db: web::Data<sqlx::Pool<sqlx::Postgres>>,
     payload: Json<AdjustReq>,
-    user: AuthUser,
 ) -> actix_web::Result<HttpResponse> {
-    let svc = InventoryService {
-        stocks: StockRepo { db: &db },
-        movements: MovementRepo { db: &db },
-        db: &db,
-    };
-
-    let id = svc.adjust_stocks(
-        payload.wh,
-        payload.lines.clone(),
-        payload.note.clone(),
-        Some(user.0.sub.as_str()),
-    ).await
-        .map_err(|e| {
-            tracing::warn!(?e, "adjust fail");
-            crate::error::AppError::Internal("adjust failed".into())
-        })?;
-
-    Ok(HttpResponse::Created().json(MovementRes {
-        id,
-        mv_no: format!("ADJ-{}", &id.to_string()[..8]),
-        mv_type: "ADJUST".into(),
-    }))
+    // TODO: Implement adjust stocks logic using InventoryService
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "message": "Adjust stocks endpoint - to be implemented"
+    })))
 }

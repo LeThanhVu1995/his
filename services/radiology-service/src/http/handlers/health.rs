@@ -1,4 +1,4 @@
-use actix_web::{get, Responder, HttpResponse, web};
+use actix_web::{HttpResponse, web};
 use sqlx::{Pool, Postgres};
 use crate::infrastructure::iam_client;
 use crate::config::Settings;

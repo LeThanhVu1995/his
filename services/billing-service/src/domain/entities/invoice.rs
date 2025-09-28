@@ -2,20 +2,17 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use utoipa::ToSchema;
-use bigdecimal::BigDecimal;
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow, ToSchema)]
 pub struct Invoice {
-    pub id: Uuid,
-    pub invoice_no: String,
+    pub invoice_id: Uuid,
+    pub encounter_id: Uuid,
     pub patient_id: Uuid,
-    pub encounter_id: Option<Uuid>,
-    pub subtotal: BigDecimal,
-    pub discount: BigDecimal,
-    pub tax: BigDecimal,
-    pub total: BigDecimal,
-    pub status: String,
-    pub note: Option<String>,
+    pub status: String, // OPEN, PAID, CANCELLED, REFUNDED
+    pub total_amount: f64,
+    pub currency: String,
+    pub issued_at: DateTime<Utc>,
+    pub due_date: Option<chrono::NaiveDate>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

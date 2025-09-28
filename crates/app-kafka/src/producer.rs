@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use app_config::KafkaConfig;
 use app_error::AppError;
-use metrics::{describe_counter, increment_counter};
+// metrics hooks are optional; keep lightweight to avoid build issues
 use rdkafka::config::ClientConfig;
 use rdkafka::producer::{FutureProducer, FutureRecord};
 use rdkafka::util::Timeout;
@@ -69,34 +69,25 @@ impl KafkaProducer {
         key: Option<&str>,
         payload: &[u8],
     ) -> Result<ProduceReport, AppError> {
-        describe_counter!("kafka_produced_total", "Produced messages");
-        describe_counter!("kafka_produce_errors_total", "Producer errors");
-
         let mut rec = FutureRecord::to(topic).payload(payload);
         if let Some(k) = key {
             rec = rec.key(k);
         }
 
-        match self.inner.send(rec, Timeout::After(self.timeout)).await {
-            Ok(Ok(delivery)) => {
-                increment_counter!("kafka_produced_total", "topic" => topic.to_string());
+        let res = self.inner.send(rec, Timeout::After(self.timeout)).await;
+        match res {
+            Ok((partition, offset)) => {
                 let report = ProduceReport {
-                    topic: delivery.topic().to_string(),
-                    partition: delivery.partition(),
-                    offset: delivery.offset(),
+                    topic: topic.to_string(),
+                    partition,
+                    offset,
                 };
                 debug!(?report, "kafka delivered");
                 Ok(report)
             }
-            Ok(Err((e, _))) => {
-                increment_counter!("kafka_produce_errors_total", "topic" => topic.to_string());
-                error!(error = %e, "kafka delivery failed");
+            Err((e, _msg)) => {
+                error!(error = ?e, "kafka delivery failed");
                 Err(AppError::Upstream(format!("kafka delivery: {e}")))
-            }
-            Err(e) => {
-                increment_counter!("kafka_produce_errors_total", "topic" => topic.to_string());
-                error!(error = %e, "kafka send timeout");
-                Err(AppError::Timeout)
             }
         }
     }
@@ -123,7 +114,7 @@ impl KafkaProducer {
 /// Parse chuỗi `k=v;...` và set vào ClientConfig.
 /// Ví dụ:
 /// "security.protocol=SASL_SSL;sasl.mechanism=SCRAM-SHA-256;sasl.username=u;sasl.password=p"
-fn apply_security(cfg: &mut ClientConfig, security: &str) {
+pub(crate) fn apply_security(cfg: &mut ClientConfig, security: &str) {
     for pair in security.split(';').map(str::trim).filter(|s| !s.is_empty()) {
         if let Some((k, v)) = pair.split_once('=') {
             cfg.set(k.trim(), v.trim());

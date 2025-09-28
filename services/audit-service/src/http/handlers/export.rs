@@ -7,8 +7,8 @@ pub async fn export_ndjson(
 ) -> actix_web::Result<HttpResponse> {
     let rows = sqlx::query(
         r#"SELECT to_jsonb(t) AS j FROM (
-           SELECT id,occurred_at,actor_id,actor_name,actor_role,ip::text as ip,user_agent,action,entity_type,entity_id,tenant_id,request_id,source,data,hash,created_at
-           FROM audit_events ORDER BY occurred_at DESC LIMIT 10000) t"#
+           SELECT audit_id, event_time, user_id, entity_name, entity_id, action, before_json, after_json, ip_address
+           FROM audit_log ORDER BY event_time DESC LIMIT 10000) t"#
     )
     .fetch_all(&**db)
     .await

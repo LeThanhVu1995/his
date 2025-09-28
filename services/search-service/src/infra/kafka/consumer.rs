@@ -1,22 +1,44 @@
 use crate::infra::opensearch::client::OsClient;
 use crate::domain::services::indexer_svc::IndexerSvc;
 use serde_json::Value as Json;
+use app_kafka::consumer::{KafkaConsumer, ConsumeOutcome};
 
 pub async fn run(db: sqlx::Pool<sqlx::Postgres>) {
     let os = OsClient::from_env();
-    let _indexer = IndexerSvc { db: &db, os: os.clone() };
+    let indexer = IndexerSvc { db: &db, os: os.clone() };
 
-    tracing::info!("Starting Kafka consumer for search-service auto-sync");
+    let cfg = app_config::KafkaConfig::from_env();
+    let consumer = KafkaConsumer::from_config(&cfg, "search-service").expect("create consumer");
+    let topics_env = std::env::var("KAFKA_TOPICS").unwrap_or_else(|_| "his.master.code.v1".into());
+    let topics: Vec<&str> = topics_env.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
 
-    // Mock Kafka consumer - in real implementation, this would connect to actual Kafka
-    // For now, we'll simulate periodic checks for demonstration
-    loop {
-        tokio::time::sleep(tokio::time::Duration::from_secs(30)).await;
-
-        // In real implementation, this would be triggered by Kafka events
-        // For now, we'll just log that we're running
-        tracing::debug!("Kafka consumer is running (mock implementation)");
-    }
+    let db2 = db.clone();
+    let os2 = os.clone();
+    consumer
+        .run(&topics, move |msg| {
+            // capture owned payload to avoid lifetime issues in async
+            let payload_bytes: Option<Vec<u8>> = app_kafka::consumer::KafkaConsumer::payload_bytes(msg);
+            let db = db2.clone();
+            let os = os2.clone();
+            async move {
+                if let Some(bytes) = payload_bytes {
+                    if let Ok(json) = serde_json::from_slice::<Json>(&bytes) {
+                        let event = json["event"].as_str().unwrap_or("").to_owned();
+                        let entity = json["entity"].as_str().unwrap_or("").to_owned();
+                        let id = json["id"].as_str().unwrap_or("").to_owned();
+                        let data = json.get("data").cloned().unwrap_or(Json::Null);
+                        if handle_database_event(&event, &entity, &id, &data, &db, &os).await.is_ok() {
+                            return ConsumeOutcome::Commit;
+                        } else {
+                            return ConsumeOutcome::Retry;
+                        }
+                    }
+                }
+                ConsumeOutcome::SkipCommit
+            }
+        })
+        .await
+        .ok();
 }
 
 pub async fn handle_database_event(

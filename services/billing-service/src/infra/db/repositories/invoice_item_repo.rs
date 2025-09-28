@@ -1,51 +1,57 @@
-use sqlx::Row;
+use sqlx::PgPool;
 use uuid::Uuid;
 use crate::domain::entities::invoice_item::InvoiceItem;
-use crate::infra::db::pool::PgPool;
-use app_core::prelude::*;
 
-pub async fn insert_many(db: &PgPool, items: &[InvoiceItem]) -> Result<(), app_error::AppError> {
-    for item in items {
+#[derive(Clone)]
+pub struct InvoiceItemRepo<'a> {
+    pub db: &'a PgPool,
+}
+
+impl<'a> InvoiceItemRepo<'a> {
+    pub async fn insert(&self, item: &InvoiceItem) -> anyhow::Result<()> {
         sqlx::query(
-            r#"INSERT INTO invoice_items(id,invoice_id,charge_id,code,name,qty,unit_price,amount)
-               VALUES($1,$2,$3,$4,$5,$6,$7,$8)"#
+            "INSERT INTO bill_invoice_item(invoice_item_id, invoice_id, service_code, description, qty, unit_price, amount, created_at, updated_at)
+             VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)"
         )
-        .bind(item.id)
+        .bind(item.invoice_item_id)
         .bind(item.invoice_id)
-        .bind(item.charge_id)
-        .bind(&item.code)
-        .bind(&item.name)
-        .bind(item.qty.to_string())
-        .bind(item.unit_price.to_string())
-        .bind(item.amount.to_string())
-        .execute(db)
+        .bind(&item.service_code)
+        .bind(item.description.as_ref())
+        .bind(&item.qty)
+        .bind(&item.unit_price)
+        .bind(&item.amount)
+        .bind(item.created_at)
+        .bind(item.updated_at)
+        .execute(self.db)
         .await?;
+        Ok(())
     }
-    Ok(())
+
+    pub async fn get(&self, invoice_item_id: Uuid) -> anyhow::Result<Option<InvoiceItem>> {
+        Ok(sqlx::query_as::<_, InvoiceItem>(
+            "SELECT invoice_item_id, invoice_id, service_code, description, qty, unit_price, amount, created_at, updated_at
+             FROM bill_invoice_item WHERE invoice_item_id = $1"
+        )
+        .bind(invoice_item_id)
+        .fetch_optional(self.db)
+        .await?)
+    }
+
+    pub async fn list_by_invoice(&self, invoice_id: Uuid) -> anyhow::Result<Vec<InvoiceItem>> {
+        Ok(sqlx::query_as::<_, InvoiceItem>(
+            "SELECT invoice_item_id, invoice_id, service_code, description, qty, unit_price, amount, created_at, updated_at
+             FROM bill_invoice_item WHERE invoice_id = $1 ORDER BY created_at"
+        )
+        .bind(invoice_id)
+        .fetch_all(self.db)
+        .await?)
+    }
+
+    pub async fn delete_by_invoice(&self, invoice_id: Uuid) -> anyhow::Result<()> {
+        sqlx::query("DELETE FROM bill_invoice_item WHERE invoice_id = $1")
+            .bind(invoice_id)
+            .execute(self.db)
+            .await?;
+        Ok(())
+    }
 }
-
-pub async fn list_by_invoice(db: &PgPool, invoice_id: Uuid) -> Result<Vec<InvoiceItem>, app_error::AppError> {
-    let rows = sqlx::query(
-        r#"SELECT id,invoice_id,charge_id,code,name,qty,unit_price,amount,created_at,updated_at
-           FROM invoice_items WHERE invoice_id=$1 ORDER BY created_at"#
-    )
-    .bind(invoice_id)
-    .fetch_all(db)
-    .await?;
-
-    let items: Vec<InvoiceItem> = rows.into_iter().map(|r| InvoiceItem {
-        id: r.get("id"),
-        invoice_id: r.get("invoice_id"),
-        charge_id: r.get("charge_id"),
-        code: r.get("code"),
-        name: r.get("name"),
-        qty: r.get::<String, _>("qty").parse().unwrap_or_default(),
-        unit_price: r.get::<String, _>("unit_price").parse().unwrap_or_default(),
-        amount: r.get::<String, _>("amount").parse().unwrap_or_default(),
-        created_at: r.get("created_at"),
-        updated_at: r.get("updated_at"),
-    }).collect();
-
-    Ok(items)
-}
-

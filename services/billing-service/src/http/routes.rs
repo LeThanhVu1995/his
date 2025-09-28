@@ -1,47 +1,34 @@
 use actix_web::{web, Scope};
 use crate::http::handlers::{
     health,
-    charges::{list, create, update},
-    invoices::{list as invoice_list, create as invoice_create, issue},
-    payments::{list as payment_list, create as payment_create},
+    charges::{list, create, update, get as get_charge},
+    invoices::{list as invoice_list, create as invoice_create, issue, get as get_invoice},
+    payments::{list as payment_list, create as payment_create, get as get_payment},
+    refunds::{list as refund_list, create as refund_create},
 };
 
 pub fn api_scope() -> Scope {
     web::scope("")
         .route("/healthz", web::get().to(health::healthz))
+
         // Charges
-        // .service(
-        //     web::resource("/api/v1/charges")
-        //         .route(web::get().to(list::list_charges))
-        // )
-        // .service(
-        //     web::resource("/api/v1/charges:create")
-        //         .route(web::post().to(create::create_charge))
-        // )
-        // .service(
-        //     web::resource("/api/v1/charges/{id}")
-        //         .route(web::put().to(update::update_charge))
-        // )
-        // // Invoices
-        // .service(
-        //     web::resource("/api/v1/invoices")
-        //         .route(web::get().to(invoice_list::list_invoices))
-        // )
-        // .service(
-        //     web::resource("/api/v1/invoices:create")
-        //         .route(web::post().to(invoice_create::create_invoice))
-        // )
-        // .service(
-        //     web::resource("/api/v1/invoices/{id}:issue")
-        //         .route(web::put().to(issue::issue_invoice))
-        // )
-        // // Payments
-        // .service(
-        //     web::resource("/api/v1/payments")
-        //         .route(web::get().to(payment_list::list_payments))
-        // )
-        // .service(
-        //     web::resource("/api/v1/payments:create")
-        //         .route(web::post().to(payment_create::create_payment))
-        // )
+        .service(list::list_charges)
+        .service(create::create_charge)
+        .service(update::update_charge)
+        .service(get_charge::get_charge)
+
+        // Invoices
+        .service(invoice_list::list_invoices)
+        .service(invoice_create::create_invoice)
+        .service(issue::issue_invoice)
+        .service(get_invoice::get_invoice)
+
+        // Payments
+        .service(payment_list::list_payments)
+        .service(payment_create::create_payment)
+        .service(get_payment::get_payment)
+
+        // Refunds
+        .service(refund_list::list_refunds)
+        .service(refund_create::create_refund)
 }

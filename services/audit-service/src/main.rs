@@ -15,8 +15,11 @@ async fn main() -> std::io::Result<()> {
 
     // consumer (optional)
     tokio::spawn({
-        let db = infra::db::pool::connect(&cfg.database_url).await.expect("db");
-        async move { infra::kafka::consumer::run(db).await }
+        let db_url = cfg.database_url.clone();
+        async move {
+            let db = infra::db::pool::connect(&db_url).await.expect("db");
+            infra::kafka::consumer::run(db).await
+        }
     });
 
     service_main!(

@@ -18,13 +18,13 @@ anyhow = "1"
 uuid = { version = "1", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 validator = { version = "0.15", features = ["derive"] }
+rust_decimal = { version = "1", features = ["serde"] }
 actix-web-validator = "4"
 # Database
-sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros"] }
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros", "rust_decimal"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 actix-rt = "2"
-# Kafka (optional):
-rdkafka = { version = "0.36", features = ["cmake-build"], optional = true }
+# Kafka via shared crate
 # HTTP client for IAM sync
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 # JWT (nếu cần tự verify hoặc bóc claim tùy chỉnh)
@@ -45,12 +45,11 @@ app-auth = { path = "../../crates/app-auth" }
 app-error = { path = "../../crates/app-error" }
 app-telemetry = { path = "../../crates/app-telemetry" }
 app-web = { path = "../../crates/app-web" }
-# app-kafka = { path = "../../crates/app-kafka" }  # Disabled due to CMake requirement
+app-kafka = { path = "../../crates/app-kafka" }
 app-config = { path = "../../crates/app-config" }
 
 [features]
 default = []
-kafka = ["rdkafka"]
 
 [profile.release]
 codegen-units = 1

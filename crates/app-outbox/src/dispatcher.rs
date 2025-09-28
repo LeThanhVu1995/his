@@ -2,16 +2,17 @@
 use std::time::Duration;
 
 use chrono::Duration as ChronoDuration;
-use metrics::{describe_counter, increment_counter};
+// metrics hooks are optional; keep only tracing for now
 use tokio::time::sleep;
 use tracing::{debug, error, info, instrument, warn};
 use uuid::Uuid;
 
 use app_error::AppError;
-use app_kafka::KafkaProducer;
+use app_kafka::producer::KafkaProducer;
 
 use crate::model::OutboxMsg;
-use crate::store::{fetch_batch_for_dispatch, mark_delivered, mark_failed, PgPool};
+use crate::store::{fetch_batch_for_dispatch, mark_delivered, mark_failed};
+use sqlx::PgPool;
 
 /// Cấu hình backoff retry đơn giản theo số lần attempt.
 #[derive(Debug, Clone)]
@@ -80,10 +81,7 @@ impl OutboxDispatcher {
 
     /// Chạy vòng lặp vô hạn (spawn trong Tokio).
     pub async fn run_forever(&self) -> Result<(), AppError> {
-        describe_counter!("outbox_fetched_total", "Outbox rows fetched for dispatch");
-        describe_counter!("outbox_dispatched_total", "Outbox rows dispatched successfully");
-        describe_counter!("outbox_failed_total", "Outbox dispatch failed");
-        describe_counter!("outbox_requeued_total", "Outbox rows requeued (set available_at)");
+        // metrics: add counters here if metrics crate wired
 
         loop {
             let n = self.run_once().await?;
@@ -107,9 +105,9 @@ impl OutboxDispatcher {
         if batch.is_empty() {
             return Ok(0);
         }
-        increment_counter!("outbox_fetched_total", "worker" => self.worker_id.clone());
+        // inc counter
 
-        for msg in batch {
+        for msg in &batch {
             if let Err(e) = self.dispatch_one(&msg).await {
                 // Lỗi gửi → mark_failed với backoff
                 let delay = self.backoff.for_attempt(msg.attempts);
@@ -117,13 +115,13 @@ impl OutboxDispatcher {
                 if let Err(e2) = mark_failed(&self.pool, msg.id, &err_text, delay).await {
                     error!(error = %e2, "mark_failed error");
                 } else {
-                    increment_counter!("outbox_requeued_total", "topic" => msg.topic.clone());
+                    // inc requeued
                 }
             } else {
                 if let Err(e2) = mark_delivered(&self.pool, msg.id).await {
                     error!(error = %e2, "mark_delivered error");
                 } else {
-                    increment_counter!("outbox_dispatched_total", "topic" => msg.topic.clone());
+                    // inc dispatched
                 }
             }
         }
@@ -142,10 +140,7 @@ impl OutboxDispatcher {
             .send_bytes(&msg.topic, key, &bytes)
             .await
             .map(|_| ())
-            .map_err(|e| {
-                increment_counter!("outbox_failed_total", "topic" => msg.topic.clone());
-                e
-            })
+            .map_err(|e| e)
     }
 }
 

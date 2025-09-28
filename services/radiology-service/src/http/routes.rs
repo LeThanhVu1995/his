@@ -11,6 +11,14 @@ pub fn api_scope() -> Scope {
         .route("/api/v1/ris/orders", web::get().to(crate::http::handlers::orders::list_orders))
         .route("/api/v1/ris/orders:create", web::post().to(crate::http::handlers::orders::create_order))
         .route("/api/v1/ris/orders/{id}", web::put().to(crate::http::handlers::orders::update_order))
+        // Order Items - new endpoints
+        .route("/api/v1/ris/order-items", web::get().to(crate::http::handlers::order_items::list_order_items))
+        .route("/api/v1/ris/order-items:create", web::post().to(crate::http::handlers::order_items::create_order_item))
+        .route("/api/v1/ris/order-items/{id}", web::put().to(crate::http::handlers::order_items::update_order_item))
+        // Results - new endpoints
+        .route("/api/v1/ris/results", web::get().to(crate::http::handlers::results::list_results))
+        .route("/api/v1/ris/results:create", web::post().to(crate::http::handlers::results::create_result))
+        .route("/api/v1/ris/results/{id}", web::put().to(crate::http::handlers::results::update_result))
         // Studies - simplified without permission middleware
         .route("/api/v1/ris/studies", web::get().to(crate::http::handlers::studies::list_studies))
         .route("/api/v1/ris/studies:create", web::post().to(crate::http::handlers::studies::create_study))

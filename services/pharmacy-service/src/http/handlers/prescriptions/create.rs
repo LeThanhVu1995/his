@@ -1,55 +1,45 @@
-use actix_web::{web, HttpResponse};
-use actix_web_validator::Json;
+use actix_web::{web, HttpResponse, Result};
+use actix_web::web::Json;
 use validator::Validate;
 
 use app_web::prelude::AuthUser;
-use crate::domain::service::PharmacyService;
-use crate::http::dto::prescription_dto::{CreatePrescriptionReq, PrescriptionRes};
+use crate::domain::entities::prescription::CreatePrescriptionRequest;
+use crate::domain::repositories::PrescriptionRepo;
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/prescriptions:create",
+    request_body = CreatePrescriptionRequest,
+    responses(
+        (status = 201, description = "Prescription created successfully", body = Prescription),
+        (status = 400, description = "Invalid input"),
+        (status = 500, description = "Internal server error")
+    )
+)]
 pub async fn create_prescription(
     db: web::Data<sqlx::Pool<sqlx::Postgres>>,
-    payload: Json<CreatePrescriptionReq>,
-    user: AuthUser,
-) -> actix_web::Result<HttpResponse> {
-    if let Err(e) = payload.validate() {
+    body: Json<CreatePrescriptionRequest>,
+    auth_user: AuthUser,
+) -> Result<HttpResponse> {
+    if let Err(e) = body.validate() {
         return Err(crate::error::AppError::BadRequest(e.to_string()).into());
     }
 
-    let svc = PharmacyService {
-        meds: crate::domain::repositories::MedRepo { db: &db },
-        presc: crate::domain::repositories::PrescriptionRepo { db: &db },
-        items: crate::domain::repositories::PrescriptionItemRepo { db: &db },
-        disp: crate::domain::repositories::DispenseRepo { db: &db },
-    };
-
-    let ordered_by = Some(user.subject.as_str());
-    let id = svc
-        .create_prescription(&payload.into_inner(), ordered_by)
-        .await
+    let repo = PrescriptionRepo { db: &db };
+    let new_prescription = repo.create(&body).await
         .map_err(|e| {
-            tracing::error!(?e, "create presc");
-            crate::error::AppError::Internal("DB".into())
+            tracing::error!(?e, "create prescription");
+            crate::error::AppError::Internal("Failed to create prescription".into())
         })?;
 
-    let repo = crate::domain::repositories::PrescriptionRepo { db: &db };
-    let p = repo
-        .find(id)
-        .await
-        .map_err(|e| {
-            tracing::error!(?e, "find presc");
-            crate::error::AppError::Internal("DB".into())
-        })?
-        .ok_or(crate::error::AppError::NotFound)?;
+    // Create prescription items
+    for item in &body.items {
+        repo.create_item(new_prescription.prescription_id, item).await
+            .map_err(|e| {
+                tracing::error!(?e, "create prescription item");
+                crate::error::AppError::Internal("Failed to create prescription item".into())
+            })?;
+    }
 
-    let res = PrescriptionRes {
-        id: p.id,
-        patient_id: p.patient_id,
-        encounter_id: p.encounter_id,
-        presc_no: p.presc_no,
-        status: p.status,
-        ordered_by: p.ordered_by,
-        note: p.note,
-    };
-
-    Ok(HttpResponse::Created().json(res))
+    Ok(HttpResponse::Created().json(new_prescription))
 }

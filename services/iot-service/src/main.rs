@@ -13,8 +13,8 @@ async fn main()->std::io::Result<()> {
     let mut mqtt=crate::infra::mqtt::client::Mqtt::connect();
     crate::infra::mqtt::client::subscribe_vitals(&mut mqtt.client).await;
     loop {
-      match mqtt.evloop.poll().await { Ok(ev) => if let Event::Incoming(pkt)=ev { match pkt { Packet::Publish(p) => {
-            let topic=String::from_utf8_lossy(&p.topic).to_string();
+      match mqtt.evloop.eventloop.poll().await { Ok(ev) => if let Event::Incoming(pkt)=ev { match pkt { Packet::Publish(p) => {
+            let topic=String::from_utf8_lossy(p.topic.as_bytes()).to_string();
             let parts: Vec<_>=topic.split('/').collect();
             let device_code=parts.get(2).map(|s|*s).unwrap_or("");
             if let Ok(txt)=std::str::from_utf8(&p.payload){ if let Ok(json)=serde_json::from_str::<serde_json::Value>(txt){ let svc=crate::domain::services::ingest_svc::IngestSvc{ db:&db }; let _=svc.ingest_vital_json(device_code, &json).await; } }

@@ -29,7 +29,7 @@ chrono.workspace = true
 validator.workspace = true
 
 # Database
-sqlx = { workspace = true, features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros"] }
+sqlx = { workspace = true, features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros", "rust_decimal"] }
 tokio.workspace = true
 
 # HTTP client
@@ -59,3 +59,4 @@ app-core.workspace = true
 app-error.workspace = true
 app-telemetry.workspace = true
 app-config.workspace = true
+app-kafka.workspace = true

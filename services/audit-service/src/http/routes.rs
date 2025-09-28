@@ -10,9 +10,14 @@ pub fn api_scope() -> Scope {
                 .route(web::get().to(crate::http::handlers::list::list))
         )
         .service(
-            web::resource("/api/v1/audit/events/by-actor")
+            web::resource("/api/v1/audit/events/by-user")
                 .wrap(RequirePermission::new(crate::security::policy::perm::AUDIT_READ))
-                .route(web::get().to(crate::http::handlers::by_actor::by_actor))
+                .route(web::get().to(crate::http::handlers::by_user::by_user))
+        )
+        .service(
+            web::resource("/api/v1/audit/events/by-action")
+                .wrap(RequirePermission::new(crate::security::policy::perm::AUDIT_READ))
+                .route(web::get().to(crate::http::handlers::by_action::by_action))
         )
         .service(
             web::resource("/api/v1/audit/events/by-entity")
@@ -23,6 +28,11 @@ pub fn api_scope() -> Scope {
             web::resource("/api/v1/audit/events:export")
                 .wrap(RequirePermission::new(crate::security::policy::perm::AUDIT_EXPORT))
                 .route(web::get().to(crate::http::handlers::export::export_ndjson))
+        )
+        .service(
+            web::resource("/api/v1/audit/events:export-s3")
+                .wrap(RequirePermission::new(crate::security::policy::perm::AUDIT_EXPORT))
+                .route(web::get().to(crate::http::handlers::export_s3::export_to_s3))
         )
         .service(
             web::resource("/internal/audit:write")

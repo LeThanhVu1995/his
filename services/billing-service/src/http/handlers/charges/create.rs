@@ -1,9 +1,8 @@
 use actix_web::{web, HttpResponse, post};
 use actix_web_validator::Json;
 use app_web::prelude::AuthUser;
-use crate::domain::services::billing_svc;
 use crate::http::dto::charge_dto::{CreateChargeReq, ChargeRes};
-use crate::infra::db::repositories::charge_repo;
+use crate::http::handlers::common::create_billing_service;
 
 #[post("/api/v1/charges:create")]
 #[utoipa::path(
@@ -17,16 +16,15 @@ pub async fn create_charge(
     payload: Json<CreateChargeReq>,
     _user: AuthUser,
 ) -> actix_web::Result<HttpResponse> {
-    let id = billing_svc::create_charge(
-        &db,
-        payload.patient_id,
+    let billing_service = create_billing_service(&db);
+
+    let charge_id = billing_service.create_charge(
         payload.encounter_id,
-        payload.order_id,
+        payload.patient_id,
         payload.code.clone(),
-        payload.name.clone(),
-        payload.qty.clone(),
-        payload.unit_price.clone(),
-        payload.currency.clone(),
+        payload.description.clone(),
+        payload.qty,
+        payload.unit_price,
     )
     .await
     .map_err(|e| {
@@ -34,7 +32,7 @@ pub async fn create_charge(
         crate::error::AppError::Internal("DB".into())
     })?;
 
-    let charge = charge_repo::find_by_id(&db, id)
+    let charge = billing_service.get_charge(charge_id)
         .await
         .map_err(|e| {
             tracing::error!(?e, "find charge");
@@ -43,9 +41,9 @@ pub async fn create_charge(
         .ok_or(crate::error::AppError::NotFound)?;
 
     let res = ChargeRes {
-        id: charge.id,
-        code: charge.code,
-        name: charge.name,
+        id: charge.charge_id,
+        code: charge.service_code,
+        name: charge.description.unwrap_or_default(),
         qty: charge.qty,
         unit_price: charge.unit_price,
         amount: charge.amount,

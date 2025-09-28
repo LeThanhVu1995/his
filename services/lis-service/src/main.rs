@@ -8,6 +8,7 @@ mod security;
 mod infrastructure;
 mod domain;
 mod http;
+mod infra;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -33,6 +34,11 @@ async fn main() -> std::io::Result<()> {
                 PermissionDef::new("his.lab.result.enter", "Enter result values", "his.lab.result", "enter"),
                 PermissionDef::new("his.lab.result.verify", "Verify results", "his.lab.result", "verify"),
                 PermissionDef::new("his.lab.result.release", "Release results", "his.lab.result", "release"),
+                PermissionDef::new("his.lab.order.create", "Create lab order", "his.lab.order", "create"),
+                PermissionDef::new("his.lab.order.get", "Get lab order", "his.lab.order", "get"),
+                PermissionDef::new("his.lab.order.list", "List lab orders", "his.lab.order", "list"),
+                PermissionDef::new("his.lab.order.update", "Update lab order", "his.lab.order", "update"),
+                PermissionDef::new("his.lab.order.delete", "Delete lab order", "his.lab.order", "delete"),
             ]
         },
         set_permissions_registered: crate::http::handlers::health::set_permissions_registered,

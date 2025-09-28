@@ -24,7 +24,7 @@ pub mod perm {
 
 use app_web::security::PermissionDef;
 
-pub fn permission_catalog(svc: &str) -> Vec<PermissionDef> {
+pub fn permission_catalog(_svc: &str) -> Vec<PermissionDef> {
     use perm::*;
     vec![
         PermissionDef::new(PROC_LIST, "List procedures", "procedures", "list"),

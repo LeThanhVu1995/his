@@ -19,7 +19,7 @@ uuid = { version = "1", features = ["v4", "serde"] }
 
 # Telemetry
 tracing = "0.1"
-metrics = "0.23"
+tokio = { version = "1", features = ["rt", "time", "macros"] }
 
 # Our crates
 app-error = { path = "../app-error", features = ["sqlx"] }

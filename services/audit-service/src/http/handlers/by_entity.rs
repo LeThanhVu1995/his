@@ -9,7 +9,7 @@ pub async fn by_entity(
     let size = q.page_size.unwrap_or(50).clamp(1, 200);
     let off = (page - 1) * size;
     let rows = AuditRepo { db: &db }
-        .by_entity(&q.entity_type, q.entity_id, size, off)
+        .by_entity(&q.entity_name, &q.entity_id, size, off)
         .await
         .map_err(|_| actix_web::error::ErrorInternalServerError("db"))?;
     Ok(HttpResponse::Ok().json(rows))

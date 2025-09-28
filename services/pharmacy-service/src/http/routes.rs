@@ -7,20 +7,23 @@ pub fn api_scope() -> Scope {
             web::resource("/healthz")
                 .route(web::get().to(handlers::health::healthz))
         )
-        // Medications
+        // Drug Catalog - Real handlers
         .service(
-            web::resource("/api/v1/medications")
-                .route(web::get().to(handlers::medications::list_meds))
+            web::resource("/api/v1/pharmacy/drug-catalog")
+                .route(web::get().to(handlers::drug_catalog::list_drug_catalog))
+                .route(web::post().to(handlers::drug_catalog::create_drug_catalog))
         )
         .service(
-            web::resource("/api/v1/medications:create")
-                .route(web::post().to(handlers::medications::create_med))
+            web::resource("/api/v1/pharmacy/drug-catalog/{id}")
+                .route(web::get().to(handlers::drug_catalog::get_drug_catalog))
+                .route(web::put().to(handlers::drug_catalog::update_drug_catalog))
+                .route(web::delete().to(handlers::drug_catalog::delete_drug_catalog))
         )
         .service(
-            web::resource("/api/v1/medications/{id}")
-                .route(web::put().to(handlers::medications::update_med))
+            web::resource("/api/v1/pharmacy/drug-catalog/stats")
+                .route(web::get().to(handlers::drug_catalog::get_drug_catalog_stats))
         )
-        // Prescriptions
+        // Prescriptions - Real handlers
         .service(
             web::resource("/api/v1/prescriptions")
                 .route(web::get().to(handlers::prescriptions::list_prescriptions))
@@ -33,7 +36,7 @@ pub fn api_scope() -> Scope {
             web::resource("/api/v1/prescriptions/{id}")
                 .route(web::put().to(handlers::prescriptions::update_prescription))
         )
-        // Dispenses
+        // Dispenses - Real handlers
         .service(
             web::resource("/api/v1/dispenses")
                 .route(web::get().to(handlers::dispenses::list_dispenses))

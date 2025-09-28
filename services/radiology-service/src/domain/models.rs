@@ -65,6 +65,39 @@ pub struct Image {
 }
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow, ToSchema)]
+pub struct RadOrderItem {
+    pub rad_order_item_id: Uuid,
+    pub rad_order_id: Uuid,
+    pub proc_id: Uuid,
+    pub status: String,
+    pub performed_at: Option<DateTime<Utc>>,
+    pub performer_staff_id: Option<Uuid>,
+    pub created_at: DateTime<Utc>,
+    pub created_by: Option<Uuid>,
+    pub updated_at: DateTime<Utc>,
+    pub updated_by: Option<Uuid>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub deleted_by: Option<Uuid>,
+}
+
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow, ToSchema)]
+pub struct RadResult {
+    pub rad_result_id: Uuid,
+    pub rad_order_item_id: Uuid,
+    pub report_text: Option<String>,
+    pub result_status: String,
+    pub reported_at: Option<DateTime<Utc>>,
+    pub reported_by: Option<Uuid>,
+    pub pacs_study_uid: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub created_by: Option<Uuid>,
+    pub updated_at: DateTime<Utc>,
+    pub updated_by: Option<Uuid>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub deleted_by: Option<Uuid>,
+}
+
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow, ToSchema)]
 pub struct Report {
     pub id: Uuid,
     pub report_no: String,

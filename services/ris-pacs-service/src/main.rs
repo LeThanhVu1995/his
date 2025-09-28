@@ -1,1 +1,6 @@
-// ris-pacs-service main.rs placeholder
+use ris_pacs_service::bootstrap;
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    bootstrap::run().await
+}

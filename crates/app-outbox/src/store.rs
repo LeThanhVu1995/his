@@ -1,6 +1,6 @@
 // src/store.rs placeholder
-use chrono::{DateTime, Utc};
-use sqlx::{postgres::PgRow, PgPool, Postgres, Row, Transaction};
+use chrono::Utc;
+use sqlx::{PgPool, Postgres, Row, Transaction, Executor};
 use uuid::Uuid;
 
 use app_error::AppError;
@@ -9,12 +9,12 @@ pub type PgTxn<'t> = Transaction<'t, Postgres>;
 
 /// Enqueue một outbox message trong **transaction** hiện tại.
 /// Trả về `id` đã insert (UUID v4).
-pub async fn enqueue(tx: &mut PgTxn<'_>, msg: &NewOutboxMsg) -> Result<Uuid, AppError> {
+pub async fn enqueue(tx: &mut Transaction<'_, Postgres>, msg: &NewOutboxMsg) -> Result<Uuid, AppError> {
     let id = Uuid::new_v4();
 
     let available_at = msg.available_at.unwrap_or_else(|| Utc::now());
 
-    sqlx::query(
+    let q = sqlx::query(
         r#"
         INSERT INTO outbox (
             id, aggregate_type, aggregate_id, event_type,
@@ -32,9 +32,9 @@ pub async fn enqueue(tx: &mut PgTxn<'_>, msg: &NewOutboxMsg) -> Result<Uuid, App
     .bind(&msg.partition_key)
     .bind(&msg.headers)
     .bind(&msg.payload)
-    .bind(available_at)
-    .execute(&mut *tx)
-    .await?;
+    .bind(available_at);
+
+    tx.execute(q).await?;
 
     Ok(id)
 }
@@ -47,7 +47,7 @@ pub async fn fetch_batch_for_dispatch(
     worker_id: &str,
     stale_lock_seconds: i64,
 ) -> Result<Vec<OutboxMsg>, AppError> {
-    let rows = sqlx::query(
+    let q = sqlx::query(
         r#"
         WITH cte AS (
             SELECT id
@@ -85,9 +85,9 @@ pub async fn fetch_batch_for_dispatch(
     )
     .bind(limit)
     .bind(worker_id)
-    .bind(stale_lock_seconds)
-    .fetch_all(pool)
-    .await?;
+    .bind(stale_lock_seconds);
+
+    let rows = q.fetch_all(pool).await?;
 
     // Map the raw rows to OutboxMsg structs
     let mut outbox_msgs = Vec::new();

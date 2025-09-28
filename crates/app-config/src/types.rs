@@ -127,6 +127,21 @@ impl Default for KafkaConfig {
     }
 }
 
+impl KafkaConfig {
+    /// Load from environment variables:
+    /// - KAFKA_BROKERS
+    /// - KAFKA_GROUP_ID
+    /// - KAFKA_CLIENT_ID (optional)
+    /// - KAFKA_SECURITY (optional): key=value;key=value
+    pub fn from_env() -> Self {
+        let brokers = std::env::var("KAFKA_BROKERS").unwrap_or_else(|_| "localhost:9092".into());
+        let group_id = std::env::var("KAFKA_GROUP_ID").unwrap_or_default();
+        let client_id = std::env::var("KAFKA_CLIENT_ID").unwrap_or_default();
+        let security = std::env::var("KAFKA_SECURITY").ok();
+        Self { brokers, group_id, client_id, security }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RedisConfig {
     /// redis://localhost:6379/0

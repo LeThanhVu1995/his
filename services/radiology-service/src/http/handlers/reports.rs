@@ -1,8 +1,8 @@
-use actix_web::{get, post, put, web, HttpResponse};
+use actix_web::{web, HttpResponse};
 use uuid::Uuid;
 use crate::domain::repo::ReportRepo;
 use crate::domain::service::RisService;
-use crate::dto::report_dto::{CreateReportReq, EditReportReq, VerifyReportReq, FinalizeReportReq, ReportQuery, ReportRes};
+use crate::dto::report_dto::{CreateReportReq, EditReportReq, ReportQuery, ReportRes};
 use crate::security::auth_user::AuthUser;
 
 pub async fn list_reports(

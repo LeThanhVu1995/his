@@ -1,14 +1,14 @@
-use actix_web::{web, HttpResponse};
-use utoipa::{OpenApi, Modify};
-use utoipa::openapi::security::{Http, HttpAuthScheme, SecurityScheme};
+use actix_web::web;
+// use utoipa::{OpenApi, Modify};
+// use utoipa::openapi::security::{Http, HttpAuthScheme, SecurityScheme};
 
 pub mod handlers;
 pub mod routes;
 
-use crate::dto::procedure_dto::{CreateProcedureReq, UpdateProcedureReq, ProcQuery, ProcedureRes};
-use crate::dto::order_dto::{CreateOrderReq, UpdateOrderReq, OrderQuery, OrderRes};
-use crate::dto::study_dto::{CreateStudyReq, ProgressStudyReq, StudyQuery, StudyRes};
-use crate::dto::report_dto::{CreateReportReq, EditReportReq, VerifyReportReq, FinalizeReportReq, ReportQuery, ReportRes};
+// use crate::dto::procedure_dto::{CreateProcedureReq, UpdateProcedureReq, ProcQuery, ProcedureRes};
+// use crate::dto::order_dto::{CreateOrderReq, UpdateOrderReq, OrderQuery, OrderRes};
+// use crate::dto::study_dto::{CreateStudyReq, ProgressStudyReq, StudyQuery, StudyRes};
+// use crate::dto::report_dto::{CreateReportReq, EditReportReq, VerifyReportReq, FinalizeReportReq, ReportQuery, ReportRes};
 
 // OpenAPI documentation temporarily disabled
 // #[derive(OpenApi)]

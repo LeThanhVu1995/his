@@ -1,4 +1,4 @@
-use actix_web::{get, post, put, web, HttpResponse};
+use actix_web::{web, HttpResponse};
 use uuid::Uuid;
 use crate::domain::repo::ProcRepo;
 use crate::domain::service::RisService;
@@ -60,7 +60,7 @@ pub async fn create_procedure(
             crate::error::AppError::Internal("DB".into())
         })?;
 
-    let repo = ProcRepo { db: &db };
+    let _repo = ProcRepo { db: &db };
     let p = sqlx::query_as::<_, crate::domain::models::Procedure>(
         r#"SELECT id,code,name,modality,body_part,contrast,duration_min,created_at,updated_at FROM rad_procedures WHERE id=$1"#
     )

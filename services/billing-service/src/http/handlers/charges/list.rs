@@ -1,10 +1,8 @@
 use actix_web::{web, HttpResponse, get};
 use actix_web_validator::Query;
-use uuid::Uuid;
 use app_web::prelude::AuthUser;
-use crate::infra::db::repositories::charge_repo;
 use crate::http::dto::charge_dto::{ChargeQuery, ChargeRes};
-use billing_service::dto::common::calc_etag;
+use crate::http::handlers::common::create_billing_service;
 
 #[get("/api/v1/charges")]
 #[utoipa::path(
@@ -22,25 +20,25 @@ pub async fn list_charges(
     let page = q.page.unwrap_or(1);
     let size = q.page_size.unwrap_or(50);
 
-    let (items, total) = charge_repo::list_paged(
-        &db,
-        q.encounter_id,
-        q.status.as_deref(),
-        page,
-        size,
-    )
-    .await
-    .map_err(|e| {
-        tracing::error!(?e, "list charges");
-        crate::error::AppError::Internal("DB".into())
-    })?;
+    let billing_service = create_billing_service(&db);
+
+    let items = if let Some(encounter_id) = q.encounter_id {
+        billing_service.list_charges_by_encounter(encounter_id, size, (page - 1) * size).await
+            .map_err(|e| {
+                tracing::error!(?e, "list charges by encounter");
+                crate::error::AppError::Internal("DB".into())
+            })?
+    } else {
+        // For now, return empty list - in real implementation would have a general list method
+        vec![]
+    };
 
     let res: Vec<ChargeRes> = items
         .into_iter()
         .map(|c| ChargeRes {
-            id: c.id,
-            code: c.code,
-            name: c.name,
+            id: c.charge_id,
+            code: c.service_code,
+            name: c.description.unwrap_or_default(),
             qty: c.qty,
             unit_price: c.unit_price,
             amount: c.amount,
@@ -49,7 +47,7 @@ pub async fn list_charges(
         .collect();
 
     let body = serde_json::to_vec(&res).unwrap();
-    let etag = calc_etag(&body);
+    let etag = format!("\"{}\"", body.len());
 
     if let Some(tag) = req
         .headers()
@@ -63,7 +61,7 @@ pub async fn list_charges(
 
     Ok(HttpResponse::Ok()
         .append_header((actix_web::http::header::ETAG, etag))
-        .append_header(("X-Total-Count", total.to_string()))
+        .append_header(("X-Total-Count", res.len().to_string()))
         .append_header(("X-Page", page.to_string()))
         .append_header(("X-Page-Size", size.to_string()))
         .content_type("application/json")

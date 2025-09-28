@@ -2,7 +2,6 @@ use crate::domain::entities::audit_event::AuditEvent;
 use crate::infra::db::repositories::audit_repo::AuditRepo;
 use sqlx::Pool;
 use sqlx::Postgres;
-use uuid::Uuid;
 
 pub struct AuditSvc<'a> {
     pub db: &'a Pool<Postgres>,
@@ -19,13 +18,18 @@ impl<'a> AuditSvc<'a> {
         repo.list(limit, offset).await
     }
 
-    pub async fn list_by_actor(&self, actor_id: Uuid, limit: i64, offset: i64) -> anyhow::Result<Vec<AuditEvent>> {
+    pub async fn list_by_user(&self, user_id: &str, limit: i64, offset: i64) -> anyhow::Result<Vec<AuditEvent>> {
         let repo = AuditRepo { db: self.db };
-        repo.by_actor(actor_id, limit, offset).await
+        repo.by_user(user_id, limit, offset).await
     }
 
-    pub async fn list_by_entity(&self, entity_type: &str, entity_id: Uuid, limit: i64, offset: i64) -> anyhow::Result<Vec<AuditEvent>> {
+    pub async fn list_by_entity(&self, entity_name: &str, entity_id: &str, limit: i64, offset: i64) -> anyhow::Result<Vec<AuditEvent>> {
         let repo = AuditRepo { db: self.db };
-        repo.by_entity(entity_type, entity_id, limit, offset).await
+        repo.by_entity(entity_name, entity_id, limit, offset).await
+    }
+
+    pub async fn list_by_action(&self, action: &str, limit: i64, offset: i64) -> anyhow::Result<Vec<AuditEvent>> {
+        let repo = AuditRepo { db: self.db };
+        repo.by_action(action, limit, offset).await
     }
 }

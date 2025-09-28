@@ -1,6 +1,12 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use utoipa::ToSchema;
+use validator::Validate;
+
+// Include organization and inventory entities directly
+include!("entities/organization.rs");
+include!("entities/inventory.rs");
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow, utoipa::ToSchema)]
 pub struct MasterCode {
@@ -30,3 +36,10 @@ pub struct LkCode {
     pub display: String,
     pub extra_json: Option<String>,
 }
+
+// Re-export organization and inventory entities
+// pub mod organization;
+// pub mod inventory;
+
+// pub use organization::*;
+// pub use inventory::*;

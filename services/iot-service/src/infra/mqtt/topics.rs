@@ -1,2 +1,3 @@
-pub fn vitals_topic()->String{ std::env::var("MQTT_TOPIC_VITALS").unwrap_or("iot/v1/+/vitals".into()) }
-// iot-service src/infra/mqtt/topics.rs placeholder
+pub const VITALS_TOPIC: &str = "iot/vitals";
+pub const DEVICE_STATUS_TOPIC: &str = "iot/device/status";
+pub const ALERTS_TOPIC: &str = "iot/alerts";

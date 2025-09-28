@@ -49,6 +49,23 @@ pub struct TimeSlot {
 }
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow, ToSchema)]
+pub struct ResourceEquipment {
+    pub equipment_id: Uuid,
+    pub facility_id: Uuid,
+    pub department_id: Option<Uuid>,
+    pub code: String,
+    pub name: String,
+    pub type_code: Option<String>,
+    pub status: String,
+    pub created_at: DateTime<Utc>,
+    pub created_by: Option<Uuid>,
+    pub updated_at: DateTime<Utc>,
+    pub updated_by: Option<Uuid>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub deleted_by: Option<Uuid>,
+}
+
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow, ToSchema)]
 pub struct Appointment {
     pub id: Uuid,
     pub appt_no: String,
@@ -56,9 +73,18 @@ pub struct Appointment {
     pub provider_id: Uuid,
     pub room_id: Option<Uuid>,
     pub slot_id: Uuid,
+    pub facility_id: Option<Uuid>,
+    pub department_id: Option<Uuid>,
+    pub staff_id: Option<Uuid>,
+    pub start_time: DateTime<Utc>,
+    pub end_time: Option<DateTime<Utc>>,
     pub status: String,
     pub reason: Option<String>,
+    pub reason_text: Option<String>,
     pub created_by: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub updated_by: Option<Uuid>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub deleted_by: Option<Uuid>,
 }

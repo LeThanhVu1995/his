@@ -43,4 +43,56 @@ pub fn api_scope() -> Scope {
                 .wrap(RequirePermission::new(perm::RECON_CREATE))
                 .route(web::post().to(crate::http::handlers::reconciliations::create::create))
         )
+        // Insurance Payers
+        .service(
+            web::resource("/api/v1/ins/payers")
+                .wrap(RequirePermission::new(perm::PAYER_CREATE))
+                .route(web::post().to(crate::http::handlers::ins_payers::create::create_ins_payer))
+        )
+        .service(
+            web::resource("/api/v1/ins/payers")
+                .wrap(RequirePermission::new(perm::PAYER_GET))
+                .route(web::get().to(crate::http::handlers::ins_payers::list::list_ins_payers))
+        )
+        .service(
+            web::resource("/api/v1/ins/payers/{id}")
+                .wrap(RequirePermission::new(perm::PAYER_GET))
+                .route(web::get().to(crate::http::handlers::ins_payers::get::get_ins_payer))
+        )
+        .service(
+            web::resource("/api/v1/ins/payers/{id}")
+                .wrap(RequirePermission::new(perm::PAYER_UPDATE))
+                .route(web::put().to(crate::http::handlers::ins_payers::update::update_ins_payer))
+        )
+        .service(
+            web::resource("/api/v1/ins/payers/{id}")
+                .wrap(RequirePermission::new(perm::PAYER_DELETE))
+                .route(web::delete().to(crate::http::handlers::ins_payers::delete::delete_ins_payer))
+        )
+        // Insurance Policies
+        .service(
+            web::resource("/api/v1/ins/policies")
+                .wrap(RequirePermission::new(perm::POLICY_CREATE))
+                .route(web::post().to(crate::http::handlers::ins_policies::create::create_ins_policy))
+        )
+        .service(
+            web::resource("/api/v1/ins/policies")
+                .wrap(RequirePermission::new(perm::POLICY_GET))
+                .route(web::get().to(crate::http::handlers::ins_policies::list::list_ins_policies))
+        )
+        .service(
+            web::resource("/api/v1/ins/policies/{id}")
+                .wrap(RequirePermission::new(perm::POLICY_GET))
+                .route(web::get().to(crate::http::handlers::ins_policies::get::get_ins_policy))
+        )
+        .service(
+            web::resource("/api/v1/ins/policies/{id}")
+                .wrap(RequirePermission::new(perm::POLICY_UPDATE))
+                .route(web::put().to(crate::http::handlers::ins_policies::update::update_ins_policy))
+        )
+        .service(
+            web::resource("/api/v1/ins/policies/{id}")
+                .wrap(RequirePermission::new(perm::POLICY_DELETE))
+                .route(web::delete().to(crate::http::handlers::ins_policies::delete::delete_ins_policy))
+        )
 }

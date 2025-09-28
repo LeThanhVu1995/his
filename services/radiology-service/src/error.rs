@@ -14,14 +14,14 @@ pub struct ProblemDetails {
 pub enum AppError {
     #[error("Unauthorized")]
     Unauthorized,
-    #[error("Forbidden")]
-    Forbidden,
+    // #[error("Forbidden")]
+    // Forbidden,
     #[error("Not Found")]
     NotFound,
-    #[error("Bad Request: {0}")]
-    BadRequest(String),
-    #[error("Conflict: {0}")]
-    Conflict(String),
+    // #[error("Bad Request: {0}")]
+    // BadRequest(String),
+    // #[error("Conflict: {0}")]
+    // Conflict(String),
     #[error("Internal: {0}")]
     Internal(String),
 }
@@ -31,10 +31,10 @@ impl ResponseError for AppError {
         use AppError::*;
         let (s, t, d) = match self {
             Unauthorized => (401, "Unauthorized", None),
-            Forbidden => (403, "Forbidden", None),
+            // Forbidden => (403, "Forbidden", None),
             NotFound => (404, "Not Found", None),
-            BadRequest(m) => (400, "Bad Request", Some(m.clone())),
-            Conflict(m) => (409, "Conflict", Some(m.clone())),
+            // BadRequest(m) => (400, "Bad Request", Some(m.clone())),
+            // Conflict(m) => (409, "Conflict", Some(m.clone())),
             Internal(m) => (500, "Internal Server Error", Some(m.clone())),
         };
         HttpResponse::build(actix_web::http::StatusCode::from_u16(s).unwrap())

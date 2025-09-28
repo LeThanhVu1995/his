@@ -18,12 +18,6 @@ pub enum AppError {
     Forbidden,
     #[error("Not Found")]
     NotFound,
-    #[error("Bad Request: {0}")]
-    BadRequest(String),
-    #[error("Conflict: {0}")]
-    Conflict(String),
-    #[error("Internal: {0}")]
-    Internal(String),
 }
 
 pub fn error() -> actix_web::Error {
@@ -37,9 +31,6 @@ impl ResponseError for AppError {
             Unauthorized => (401, "Unauthorized", None),
             Forbidden => (403, "Forbidden", None),
             NotFound => (404, "Not Found", None),
-            BadRequest(m) => (400, "Bad Request", Some(m.clone())),
-            Conflict(m) => (409, "Conflict", Some(m.clone())),
-            Internal(m) => (500, "Internal Server Error", Some(m.clone())),
         };
         HttpResponse::build(actix_web::http::StatusCode::from_u16(s).unwrap())
             .content_type("application/problem+json")

@@ -78,11 +78,20 @@ impl<'a> ApptService<'a> {
             provider_id: slot.provider_id,
             room_id: slot.room_id,
             slot_id: slot.id,
+            facility_id: None,
+            department_id: None,
+            staff_id: None,
+            start_time: slot.starts_at,
+            end_time: Some(slot.ends_at),
             status: "BOOKED".into(),
             reason,
+            reason_text: None,
             created_by: by.map(|s| s.to_string()),
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
+            updated_by: None,
+            deleted_at: None,
+            deleted_by: None,
         };
 
         self.appts.create(&appt, &mut tx).await?;

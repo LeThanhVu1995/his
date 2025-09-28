@@ -1,6 +1,6 @@
 use actix_web::{HttpResponse, web};
 use sqlx::{Pool, Postgres};
-use crate::infrastructure::iam_client;
+use crate::infra::iam_client;
 use crate::config::Settings;
 
 static mut PERMISSIONS_REGISTERED: bool = false;
@@ -19,6 +19,14 @@ struct HealthResponse {
     iam_registration: String,
 }
 
+#[utoipa::path(
+    get,
+    path = "/healthz",
+    responses(
+        (status = 200, description = "Service is healthy"),
+        (status = 500, description = "Service is unhealthy")
+    )
+)]
 pub async fn healthz(
     cfg: web::Data<Settings>,
     db: web::Data<Pool<Postgres>>,

@@ -1,9 +1,8 @@
 use actix_web::{web, HttpResponse, post};
 use actix_web_validator::Json;
 use app_web::prelude::AuthUser;
-use crate::domain::services::billing_svc;
 use crate::http::dto::payment_dto::{CreatePaymentReq, PaymentRes};
-use crate::infra::db::repositories::payment_repo;
+use crate::http::handlers::common::create_billing_service;
 
 #[post("/api/v1/payments:create")]
 #[utoipa::path(
@@ -17,12 +16,13 @@ pub async fn create_payment(
     payload: Json<CreatePaymentReq>,
     _user: AuthUser,
 ) -> actix_web::Result<HttpResponse> {
-    let id = billing_svc::create_payment(
-        &db,
+    let billing_service = create_billing_service(&db);
+
+    let payment_id = billing_service.create_payment(
         payload.invoice_id,
-        payload.method.clone(),
-        payload.amount.clone(),
-        payload.currency.as_deref().unwrap_or("VND").to_string(),
+        payload.method_code.clone(),
+        payload.amount,
+        payload.ref_no.clone(),
     )
     .await
     .map_err(|e| {
@@ -30,19 +30,18 @@ pub async fn create_payment(
         crate::error::AppError::Internal("DB".into())
     })?;
 
-    let payment = payment_repo::find_by_id(&db, id)
-        .await
+    let payment = billing_service.get_payment(payment_id).await
         .map_err(|e| {
-            tracing::error!(?e, "find payment");
+            tracing::error!(?e, "get payment");
             crate::error::AppError::Internal("DB".into())
         })?
         .ok_or(crate::error::AppError::NotFound)?;
 
     let res = PaymentRes {
-        id: payment.id,
-        pay_no: payment.pay_no,
+        id: payment.payment_id,
         amount: payment.amount,
-        method: payment.method,
+        method_code: payment.method_code,
+        status: payment.status,
     };
 
     Ok(HttpResponse::Created().json(res))

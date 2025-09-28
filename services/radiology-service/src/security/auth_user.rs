@@ -16,7 +16,7 @@ impl FromRequest for AuthUser {
     type Error = actix_web::Error;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn from_request(req: &HttpRequest, _: &mut actix_web::dev::Payload) -> Self::Future {
+    fn from_request(_req: &HttpRequest, _: &mut actix_web::dev::Payload) -> Self::Future {
         // For now, return unauthorized - this would be implemented with proper auth middleware
         ready(Err(crate::error::AppError::Unauthorized.into()))
     }

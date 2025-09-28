@@ -6,7 +6,7 @@ use sqlx::Row;
 pub struct AdhocReq {
     table: String,
     columns: Vec<String>,
-    filters: Option<serde_json::Value>,
+    _filters: Option<serde_json::Value>,
     limit: Option<i64>,
 }
 
